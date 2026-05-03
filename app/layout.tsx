@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   keywords: ["sportswear", "export", "Pakistan", "jerseys", "tracksuits", "boxing gloves", "B2B sportswear"],
 };
 
+import { Toaster } from "react-hot-toast";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,6 +29,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${barlow.variable} font-body antialiased`}>
         {children}
+        <Toaster position="bottom-right" />
       </body>
     </html>
   );

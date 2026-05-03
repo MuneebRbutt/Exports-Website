@@ -5,6 +5,8 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Eye, ShoppingCart, Heart, Star, Globe } from "lucide-react";
 import { Product } from "@/types";
+import { useCart } from "@/hooks/useCart";
+import toast from "react-hot-toast";
 
 interface ProductCardProps {
   product: any; // Using any temporarily for mock data, will use Product type in production
@@ -13,6 +15,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCardProps) {
   const isList = viewMode === 'LIST';
+  const { addItem } = useCart();
 
   return (
     <motion.div
@@ -26,8 +29,18 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
     >
       {/* Image Area */}
       <div className={`relative bg-neutral-100 overflow-hidden ${isList ? 'w-1/3' : 'w-full aspect-[4/5]'}`}>
+        <Link href={`/products/${product.category.toLowerCase()}/${product.slug || product.id}`} className="absolute inset-0 z-0">
+          <Image
+            src={product.image || "/images/product-placeholder.jpg"}
+            alt={product.name}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+        </Link>
+
         {/* Badges */}
-        <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
+        <div className="absolute top-3 left-3 z-10 flex flex-col gap-2 pointer-events-none">
           <span className="bg-primary text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">
             {product.category}
           </span>
@@ -39,27 +52,36 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
         </div>
 
         {product.isOem && (
-          <div className="absolute top-3 right-3 z-10 bg-white/90 text-dark text-[9px] font-bold uppercase tracking-tighter px-2 py-1 rounded border border-neutral-200 shadow-sm">
+          <div className="absolute top-3 right-3 z-10 bg-white/90 text-dark text-[9px] font-bold uppercase tracking-tighter px-2 py-1 rounded border border-neutral-200 shadow-sm pointer-events-none">
             Request OEM
           </div>
         )}
 
-        {/* Product Images */}
-        <div className="relative w-full h-full">
-          <div className="absolute inset-0 bg-neutral-200" /> {/* Placeholder */}
-          {/* Mock Hover Effect */}
-          <div className="absolute inset-0 bg-neutral-300 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        </div>
-
         {/* Quick Actions Overlay */}
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-          <button className="bg-white text-dark p-3 rounded-full hover:bg-primary hover:text-white transition-all transform hover:scale-110">
+        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 pointer-events-none">
+          <Link href={`/products/${product.category.toLowerCase()}/${product.slug || product.id}`} className="bg-white text-dark p-3 rounded-full hover:bg-primary hover:text-white transition-all transform hover:scale-110 pointer-events-auto">
             <Eye className="h-5 w-5" />
-          </button>
-          <button className="bg-white text-dark p-3 rounded-full hover:bg-primary hover:text-white transition-all transform hover:scale-110">
+          </Link>
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              addItem({
+                id: product.id.toString(),
+                name: product.name,
+                price: product.price,
+                exportPrice: product.price * 0.5, // Mock export price
+                image: product.image || "/images/product-placeholder.jpg",
+                size: "L", // Default mock size
+                color: "Black", // Default mock color
+                quantity: 1
+              });
+              toast.success(`${product.name} added to cart`);
+            }}
+            className="bg-white text-dark p-3 rounded-full hover:bg-primary hover:text-white transition-all transform hover:scale-110 pointer-events-auto"
+          >
             <ShoppingCart className="h-5 w-5" />
           </button>
-          <button className="bg-white text-dark p-3 rounded-full hover:bg-primary hover:text-white transition-all transform hover:scale-110">
+          <button className="bg-white text-dark p-3 rounded-full hover:bg-primary hover:text-white transition-all transform hover:scale-110 pointer-events-auto">
             <Heart className="h-5 w-5" />
           </button>
         </div>
@@ -68,9 +90,11 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
       {/* Content Area */}
       <div className={`p-5 flex flex-col ${isList ? 'w-2/3 justify-center' : 'flex-grow'}`}>
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-athletic font-bold italic tracking-tight text-dark uppercase group-hover:text-primary transition-colors">
-            {product.name}
-          </h3>
+          <Link href={`/products/${product.category.toLowerCase()}/${product.slug || product.id}`}>
+            <h3 className="text-lg font-athletic font-bold italic tracking-tight text-dark uppercase group-hover:text-primary transition-colors">
+              {product.name}
+            </h3>
+          </Link>
         </div>
 
         {/* Rating */}

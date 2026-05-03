@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useCart } from "@/hooks/useCart";
+import toast from "react-hot-toast";
 import { 
   ChevronRight, 
   Star, 
@@ -127,7 +129,22 @@ export default function ProductDetailPage({ params }: { params: { category: stri
                   <span className="w-12 text-center font-bold font-athletic text-xl">{qty}</span>
                   <button onClick={() => setQty(qty + 1)} className="p-4 hover:bg-white rounded-lg transition-colors"><Plus className="h-4 w-4" /></button>
                 </div>
-                <button className="flex-grow bg-primary text-white py-4 rounded-xl font-athletic font-bold uppercase tracking-widest text-xl hover:bg-dark transition-all transform hover:scale-[1.02] shadow-xl shadow-primary/20 flex items-center justify-center space-x-3">
+                <button 
+                  onClick={() => {
+                    useCart.getState().addItem({
+                      id: `prod-${params.slug || '1'}`,
+                      name: "Elite Pro Series Athletic Jersey",
+                      price: 29.99,
+                      exportPrice: 15.00,
+                      image: "",
+                      size: "M", // Hardcoded for demo
+                      color: "Black", // Hardcoded for demo
+                      quantity: qty
+                    });
+                    toast.success("Added to cart!");
+                  }}
+                  className="flex-grow bg-primary text-white py-4 rounded-xl font-athletic font-bold uppercase tracking-widest text-xl hover:bg-dark transition-all transform hover:scale-[1.02] shadow-xl shadow-primary/20 flex items-center justify-center space-x-3"
+                >
                   <ShoppingCart className="h-6 w-6" />
                   <span>Add to Cart</span>
                 </button>

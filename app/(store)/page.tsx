@@ -14,6 +14,8 @@ import {
   CreditCard, 
   CheckCircle2 
 } from "lucide-react";
+import { useCart } from "@/hooks/useCart";
+import toast from "react-hot-toast";
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -30,13 +32,14 @@ const staggerContainer = {
 };
 
 export default function Home() {
+  const { addItem } = useCart();
   const featuredProducts = [
-    { id: 1, name: "Elite Performance Jersey", price: 29.99, img: "/images/product-placeholder.jpg", isExport: true },
-    { id: 2, name: "Pro Series Tracksuit", price: 55.00, img: "/images/product-placeholder.jpg", isExport: true },
-    { id: 3, name: "Heavyweight Training Hoodie", price: 45.00, img: "/images/product-placeholder.jpg", isExport: false },
-    { id: 4, name: "Leather Boxing Gloves", price: 65.00, img: "/images/product-placeholder.jpg", isExport: true },
-    { id: 5, name: "Premium Compression Shorts", price: 25.00, img: "/images/product-placeholder.jpg", isExport: false },
-    { id: 6, name: "Athletic Duffle Bag", price: 35.00, img: "/images/product-placeholder.jpg", isExport: true },
+    { id: 1, name: "Elite Performance Jersey", price: 29.99, img: "/images/products/jersey-front.jpg", isExport: true, slug: "pro-elite-football-jersey", category: "sportswear" },
+    { id: 2, name: "Pro Series Tracksuit", price: 55.00, img: "/images/products/hoodie.jpg", isExport: true, slug: "pro-series-tracksuit", category: "sportswear" },
+    { id: 3, name: "Heavyweight Training Hoodie", price: 45.00, img: "/images/products/hoodie.jpg", isExport: false, slug: "urban-tech-hoodie", category: "casual-wear" },
+    { id: 4, name: "Leather Boxing Gloves", price: 65.00, img: "/images/products/gloves-red.jpg", isExport: true, slug: "heavyweight-boxing-gloves", category: "gloves" },
+    { id: 5, name: "Premium Compression Shorts", price: 25.00, img: "/images/product-placeholder-2.jpg", isExport: false, slug: "premium-compression-shorts", category: "sportswear" },
+    { id: 6, name: "Athletic Duffle Bag", price: 35.00, img: "/images/products/duffle-bag.jpg", isExport: true, slug: "athletic-duffle-bag", category: "accessories" },
   ];
 
   return (
@@ -171,23 +174,64 @@ export default function Home() {
                 className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
               >
                 <div className="relative h-80 bg-neutral-100 overflow-hidden">
+                  <Link href={`/products/${(product as any).category || 'sportswear'}/${(product as any).slug || product.id}`} className="absolute inset-0 z-0">
+                    <Image
+                      src={product.img}
+                      alt={product.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                  </Link>
                   {product.isExport && (
-                    <div className="absolute top-4 left-4 z-10 bg-dark text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center">
+                    <div className="absolute top-4 left-4 z-10 bg-dark text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center pointer-events-none">
                       <Globe className="h-3 w-3 mr-1 text-primary" /> Export Pricing
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-neutral-200 group-hover:scale-105 transition-transform duration-500" />
-                  <button className="absolute bottom-4 right-4 bg-white text-dark p-3 rounded-full shadow-lg opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-primary hover:text-white">
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      addItem({
+                        id: product.id.toString(),
+                        name: product.name,
+                        price: product.price,
+                        exportPrice: product.price * 0.5,
+                        image: product.img,
+                        size: "L",
+                        color: "Black",
+                        quantity: 1
+                      });
+                      toast.success(`${product.name} added to cart`);
+                    }}
+                    className="absolute bottom-4 right-4 bg-white text-dark p-3 rounded-full shadow-lg opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-primary hover:text-white z-10"
+                  >
                     <Package className="h-5 w-5" />
                   </button>
                 </div>
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-2">
-                    <h4 className="text-xl font-bold text-dark">{product.name}</h4>
+                    <Link href={`/products/${(product as any).category || 'sportswear'}/${(product as any).slug || product.id}`}>
+                      <h4 className="text-xl font-bold text-dark hover:text-primary transition-colors">{product.name}</h4>
+                    </Link>
                     <span className="text-primary font-bold tracking-tighter">${product.price.toFixed(2)}</span>
                   </div>
                   <p className="text-xs text-neutral-400 uppercase tracking-widest mb-6">Meharstare Original</p>
-                  <button className="w-full py-3 bg-neutral-900 text-white font-athletic uppercase tracking-widest text-sm hover:bg-primary transition-colors rounded-lg">
+                  <button 
+                    onClick={() => {
+                      addItem({
+                        id: product.id.toString(),
+                        name: product.name,
+                        price: product.price,
+                        exportPrice: product.price * 0.5,
+                        image: product.img,
+                        size: "L",
+                        color: "Black",
+                        quantity: 1
+                      });
+                      toast.success(`${product.name} added to cart`);
+                    }}
+                    className="w-full py-3 bg-neutral-900 text-white font-athletic uppercase tracking-widest text-sm hover:bg-primary transition-colors rounded-lg"
+                  >
                     Add to Cart
                   </button>
                 </div>

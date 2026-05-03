@@ -21,11 +21,38 @@ export default function ProductCatalog({ params }: { params?: { category?: strin
   const filters = useFilters();
 
   // Mock Data
+  const productImages = [
+    "/images/products/jersey-front.jpg",
+    "/images/products/hoodie.jpg",
+    "/images/products/gloves-red.jpg",
+    "/images/products/duffle-bag.jpg",
+    "/images/product-placeholder.jpg",
+    "/images/product-placeholder-2.jpg",
+    "/images/product-placeholder-3.jpg",
+  ];
+
+  const productNames = [
+    "Pro Elite Football Jersey",
+    "Urban Tech Hoodie",
+    "Heavyweight Boxing Gloves",
+    "Athletic Duffle Bag",
+    "Pro Series Training Kit",
+    "Elite Compression Shorts",
+    "Performance Athletic Jersey",
+    "Sport Tracksuit Pro",
+    "Premium Goalkeeper Gloves",
+    "Team Kit Bundle",
+    "Export Series Jersey",
+    "Champion Hoodie",
+  ];
+
   const mockProducts = Array.from({ length: 12 }).map((_, i) => ({
     id: i,
-    name: `Pro Series ${i % 2 === 0 ? 'Athletic Jersey' : 'Training Kit'}`,
-    category: params?.category ? params.category.toUpperCase() : (i % 4 === 0 ? 'SPORTSWEAR' : 'CASUAL'),
+    name: productNames[i] || `Pro Series ${i % 2 === 0 ? 'Athletic Jersey' : 'Training Kit'}`,
+    slug: productNames[i]?.toLowerCase().replace(/\s+/g, '-') || `product-${i}`,
+    category: params?.category ? params.category.toUpperCase() : (i % 4 === 0 ? 'SPORTSWEAR' : i % 4 === 1 ? 'CASUAL' : i % 4 === 2 ? 'GLOVES' : 'ACCESSORIES'),
     price: 34.99 + i * 5,
+    image: productImages[i % productImages.length],
     isExportReady: i % 3 === 0,
     isOem: i % 4 === 0,
   }));

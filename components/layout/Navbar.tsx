@@ -2,10 +2,19 @@
 
 import Link from "next/link";
 import { ShoppingCart, Search, User, Menu } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useCart } from "@/hooks/useCart";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { items } = useCart();
+  
+  const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const navLinks = [
     { name: "Sportswear", href: "/products/sportswear" },
@@ -52,9 +61,11 @@ export default function Navbar() {
             
             <Link href="/cart" className="relative hover:text-primary transition-colors">
               <ShoppingCart className="h-6 w-6" />
-              <span className="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center">
-                0
-              </span>
+              {mounted && cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
             </Link>
             
             <Link href="/login" className="hover:text-primary transition-colors">
