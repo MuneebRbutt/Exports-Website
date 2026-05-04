@@ -36,9 +36,8 @@ export default function Footer() {
 
           {/* Business */}
           <div>
-            <h4 className="text-white font-athletic uppercase tracking-widest mb-6">Business</h4>
+            <h4 className="text-white font-athletic uppercase tracking-widest mb-6">Support</h4>
             <ul className="space-y-4 text-sm">
-              <li><Link href="/export-inquiry" className="hover:text-white transition-colors text-primary font-bold">B2B Bulk Orders</Link></li>
               <li><Link href="/about" className="hover:text-white transition-colors">About Meharstare</Link></li>
               <li><Link href="/track-order" className="hover:text-white transition-colors">Track Order</Link></li>
               <li><Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>

@@ -9,7 +9,7 @@ export default function ProductTabs() {
   const tabs = [
     { id: "description", label: "Description", icon: Factory },
     { id: "specs", label: "Specifications", icon: ShieldCheck },
-    { id: "shipping", label: "Export & Shipping", icon: Truck },
+    { id: "shipping", label: "Shipping", icon: Truck },
     { id: "reviews", label: "Reviews (24)", icon: MessageSquare },
   ];
 
@@ -76,23 +76,19 @@ export default function ProductTabs() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="bg-neutral-50 p-8 rounded-3xl border border-neutral-100 text-center">
                 <Globe className="h-8 w-8 text-primary mx-auto mb-4" />
-                <h4 className="font-bold mb-2">Global Reach</h4>
-                <p className="text-xs text-neutral-500">Middle East, Europe, USA & Canada</p>
+                <h4 className="font-bold mb-2">Global Shipping</h4>
+                <p className="text-xs text-neutral-500">Fast delivery to your doorstep</p>
               </div>
               <div className="bg-neutral-50 p-8 rounded-3xl border border-neutral-100 text-center">
                 <Truck className="h-8 w-8 text-primary mx-auto mb-4" />
-                <h4 className="font-bold mb-2">DHL / FedEx</h4>
-                <p className="text-xs text-neutral-500">Fast-tracked air freight for bulk</p>
+                <h4 className="font-bold mb-2">Tracked Delivery</h4>
+                <p className="text-xs text-neutral-500">Live tracking on all orders</p>
               </div>
               <div className="bg-neutral-50 p-8 rounded-3xl border border-neutral-100 text-center">
                 <ShieldCheck className="h-8 w-8 text-primary mx-auto mb-4" />
-                <h4 className="font-bold mb-2">Lead Times</h4>
-                <p className="text-xs text-neutral-500">7-14 Days Production Cycle</p>
+                <h4 className="font-bold mb-2">Safe Transit</h4>
+                <p className="text-xs text-neutral-500">Secure packaging guaranteed</p>
               </div>
-            </div>
-            <div className="prose prose-sm max-w-none text-neutral-600">
-              <h4 className="text-dark font-bold mb-4 uppercase tracking-widest">Bulk Export Terms</h4>
-              <p>For orders exceeding 500 units, sea freight options are available at significantly lower rates. All export shipments include full documentation: Bill of Lading, Certificate of Origin, and Commercial Invoice. We support LC, Bank Transfer, and Secure Online Payments.</p>
             </div>
           </div>
         )}

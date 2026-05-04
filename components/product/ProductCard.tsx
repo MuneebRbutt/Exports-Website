@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Eye, ShoppingCart, Heart, Star, Globe } from "lucide-react";
+import { Eye, ShoppingCart, Heart, Star } from "lucide-react";
 import { Product } from "@/types";
 import { useCart } from "@/hooks/useCart";
 import toast from "react-hot-toast";
@@ -44,18 +44,7 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
           <span className="bg-primary text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">
             {product.category}
           </span>
-          {product.isExportReady && (
-            <div className="bg-dark text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded flex items-center border border-primary/30">
-              <Globe className="h-3 w-3 mr-1 text-primary" /> Export Ready
-            </div>
-          )}
         </div>
-
-        {product.isOem && (
-          <div className="absolute top-3 right-3 z-10 bg-white/90 text-dark text-[9px] font-bold uppercase tracking-tighter px-2 py-1 rounded border border-neutral-200 shadow-sm pointer-events-none">
-            Request OEM
-          </div>
-        )}
 
         {/* Quick Actions Overlay */}
         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 pointer-events-none">
@@ -69,7 +58,6 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
                 id: product.id.toString(),
                 name: product.name,
                 price: product.price,
-                exportPrice: product.price * 0.5, // Mock export price
                 image: product.image || "/images/product-placeholder.jpg",
                 size: "L", // Default mock size
                 color: "Black", // Default mock color

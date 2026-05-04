@@ -21,7 +21,6 @@ export default function Navbar() {
     { name: "Casual Wear", href: "/products/casual-wear" },
     { name: "Gloves", href: "/products/gloves" },
     { name: "Accessories", href: "/products/accessories" },
-    { name: "B2B Export", href: "/export-inquiry" },
   ];
 
   return (

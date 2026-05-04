@@ -7,30 +7,24 @@ import toast from "react-hot-toast";
 import { 
   ChevronRight, 
   Star, 
-  Globe, 
   ShoppingCart, 
-  Factory, 
   ShieldCheck, 
   Truck, 
   RefreshCcw,
   Minus,
-  Plus,
-  ArrowUpRight
+  Plus
 } from "lucide-react";
 import { motion } from "framer-motion";
 
 import ImageViewer360 from "@/components/product/ImageViewer360";
 import { ColorSelector, SizeSelector } from "@/components/product/Selectors";
-import BulkPricingTable from "@/components/product/BulkPricingTable";
 import ProductTabs from "@/components/product/ProductTabs";
 import SizeGuideModal from "@/components/product/SizeGuideModal";
-import OEMRequestModal from "@/components/product/OEMRequestModal";
 import ProductCard from "@/components/product/ProductCard";
 
 export default function ProductDetailPage({ params }: { params: { category: string, slug: string } }) {
   const [qty, setQty] = useState(1);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
-  const [isOEMModalOpen, setIsOEMModalOpen] = useState(false);
 
   const colors = [
     { name: "Black", hex: "#000000", inStock: true },
@@ -53,7 +47,6 @@ export default function ProductDetailPage({ params }: { params: { category: stri
     <div className="bg-white min-h-screen pb-24">
       {/* Modals */}
       <SizeGuideModal isOpen={isSizeGuideOpen} onClose={() => setIsSizeGuideOpen(false)} />
-      <OEMRequestModal isOpen={isOEMModalOpen} onClose={() => setIsOEMModalOpen(false)} />
 
       {/* Breadcrumbs */}
       <nav className="container mx-auto px-4 py-8 flex items-center space-x-2 text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">
@@ -81,9 +74,6 @@ export default function ProductDetailPage({ params }: { params: { category: stri
                 <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-primary/20">
                   {params.category}
                 </span>
-                <span className="bg-dark text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center">
-                  <Globe className="h-3 w-3 mr-1 text-primary" /> Export Ready
-                </span>
               </div>
               
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-athletic italic font-bold leading-tight tracking-tighter text-dark uppercase">
@@ -108,10 +98,9 @@ export default function ProductDetailPage({ params }: { params: { category: stri
                 <span className="text-5xl font-athletic font-bold text-dark italic">$29.99</span>
                 <span className="text-xs text-neutral-400 font-medium uppercase tracking-widest">Retail Price (USD)</span>
               </div>
-              <BulkPricingTable />
               <div className="flex items-center space-x-2 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
                 <ShieldCheck className="h-4 w-4 text-primary" />
-                <span>Quality Guaranteed • Direct Factory Price</span>
+                <span>Quality Guaranteed • Premium Material</span>
               </div>
             </div>
 
@@ -135,7 +124,6 @@ export default function ProductDetailPage({ params }: { params: { category: stri
                       id: `prod-${params.slug || '1'}`,
                       name: "Elite Pro Series Athletic Jersey",
                       price: 29.99,
-                      exportPrice: 15.00,
                       image: "",
                       size: "M", // Hardcoded for demo
                       color: "Black", // Hardcoded for demo
@@ -149,31 +137,12 @@ export default function ProductDetailPage({ params }: { params: { category: stri
                   <span>Add to Cart</span>
                 </button>
               </div>
-
-              <button 
-                onClick={() => setIsOEMModalOpen(true)}
-                className="w-full bg-white border-2 border-dark text-dark py-4 rounded-xl font-athletic font-bold uppercase tracking-widest text-lg hover:bg-dark hover:text-white transition-all flex items-center justify-center group"
-              >
-                <span>Request OEM / Custom Branding</span>
-                <ArrowUpRight className="h-5 w-5 ml-2 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-              </button>
-
-              {qty >= 50 && (
-                <div className="bg-primary/5 p-4 rounded-xl border border-primary/20 flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Factory className="h-5 w-5 text-primary" />
-                    <span className="text-sm font-bold text-dark">BULK ORDER DETECTED</span>
-                  </div>
-                  <span className="text-primary font-bold text-xs uppercase tracking-widest animate-pulse">Export Pricing Applied</span>
-                </div>
-              )}
             </div>
 
             {/* TRUST BADGES */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 py-8 border-y border-neutral-100">
               {[
                 { icon: Truck, label: "Global Shipping" },
-                { icon: Factory, label: "Direct Factory" },
                 { icon: ShieldCheck, label: "Quality Certified" },
                 { icon: RefreshCcw, label: "Easy Returns" }
               ].map((badge, i) => (
@@ -207,8 +176,7 @@ export default function ProductDetailPage({ params }: { params: { category: stri
                   id: i, 
                   name: `Pro Series Item ${i+1}`, 
                   category: params.category.toUpperCase(), 
-                  price: 24.99 + i * 10, 
-                  isExportReady: true 
+                  price: 24.99 + i * 10
                 }} 
               />
             ))}

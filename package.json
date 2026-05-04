@@ -29,6 +29,7 @@
     "react-dom": "^18",
     "react-hook-form": "^7.75.0",
     "react-hot-toast": "^2.6.0",
+    "recharts": "^3.8.1",
     "shadcn-ui": "^0.9.5",
     "stripe": "^22.1.0",
     "zod": "^4.4.2",

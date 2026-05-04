@@ -5,7 +5,6 @@ export interface CartItem {
   id: string;
   name: string;
   price: number;
-  exportPrice?: number;
   image: string;
   size: string;
   color: string;
@@ -14,11 +13,9 @@ export interface CartItem {
 
 interface CartStore {
   items: CartItem[];
-  isExportOrder: boolean;
   addItem: (item: CartItem) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, qty: number) => void;
-  toggleExportOrder: () => void;
   clearCart: () => void;
   getSubtotal: () => number;
 }
@@ -27,7 +24,6 @@ export const useCart = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
-      isExportOrder: false,
       
       addItem: (newItem) => {
         const items = get().items;
@@ -53,15 +49,12 @@ export const useCart = create<CartStore>()(
         });
       },
 
-      toggleExportOrder: () => set({ isExportOrder: !get().isExportOrder }),
-
-      clearCart: () => set({ items: [], isExportOrder: false }),
+      clearCart: () => set({ items: [] }),
 
       getSubtotal: () => {
-        const { items, isExportOrder } = get();
+        const { items } = get();
         return items.reduce((acc, item) => {
-          const price = (isExportOrder && item.exportPrice) ? item.exportPrice : item.price;
-          return acc + price * item.quantity;
+          return acc + item.price * item.quantity;
         }, 0);
       },
     }),
