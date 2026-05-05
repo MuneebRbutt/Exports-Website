@@ -1,0 +1,171 @@
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+// Mock data for when database is not connected or during development
+export const mockProducts = [
+  {
+    id: "1",
+    name: "Elite Pro Athletic Jersey",
+    slug: "elite-pro-jersey",
+    category: "sportswear",
+    price: 29.99,
+    image: "/images/products/jersey-front.jpg",
+    description: "Premium moisture-wicking athletic jersey designed for professional performance. Featuring breathable mesh panels and ergonomic fit.",
+    images: [
+      "/images/products/jersey-front.jpg",
+      "/images/products/jersey-back.jpg",
+      "/images/product-placeholder-2.jpg"
+    ],
+    sku: "MS-JSY-001",
+    variants: [
+      { id: "v1", size: "S", color: "Black", stock: 50 },
+      { id: "v2", size: "M", color: "Black", stock: 75 },
+      { id: "v3", size: "L", color: "Black", stock: 30 },
+    ],
+  },
+  {
+    id: "2",
+    name: "Urban Tech Hoodie",
+    slug: "urban-tech-hoodie",
+    category: "casual-wear",
+    price: 49.99,
+    image: "/images/products/hoodie.jpg",
+    description: "Stylish and functional tech hoodie for everyday wear. Made with water-resistant fabric and hidden pockets.",
+    images: [
+      "/images/products/hoodie.jpg",
+      "/images/product-placeholder.jpg"
+    ],
+    sku: "MS-HUD-022",
+    variants: [
+      { id: "v4", size: "M", color: "Grey", stock: 20 },
+      { id: "v5", size: "L", color: "Grey", stock: 15 },
+    ],
+  },
+  {
+    id: "3",
+    name: "Pro Leather Boxing Gloves",
+    slug: "pro-boxing-gloves",
+    category: "gloves",
+    price: 85.00,
+    image: "/images/products/gloves-red.jpg",
+    description: "Handcrafted genuine leather boxing gloves with multi-layer foam padding for maximum protection and comfort.",
+    images: [
+      "/images/products/gloves-red.jpg",
+      "/images/product-placeholder-3.jpg"
+    ],
+    sku: "MS-GLV-001",
+    variants: [
+      { id: "v6", size: "12oz", color: "Red", stock: 10 },
+      { id: "v7", size: "14oz", color: "Red", stock: 12 },
+    ],
+  },
+  {
+    id: "4",
+    name: "Athletic Duffle Bag",
+    slug: "athletic-duffle-bag",
+    category: "accessories",
+    price: 39.99,
+    image: "/images/products/duffle-bag.jpg",
+    description: "Durable gym bag with separate shoe compartment and waterproof lining. Perfect for all your training gear.",
+    images: [
+      "/images/products/duffle-bag.jpg",
+      "/images/product-placeholder-4.jpg"
+    ],
+    sku: "MS-BAG-005",
+    variants: [
+      { id: "v8", size: "One Size", color: "Black", stock: 100 },
+    ],
+  },
+  {
+    id: "5",
+    name: "Premium Training Kit",
+    slug: "premium-training-kit",
+    category: "sportswear",
+    price: 55.00,
+    image: "/images/product-placeholder-2.jpg",
+    description: "Complete professional training kit including jersey and shorts. Optimized for high-intensity workouts.",
+    images: ["/images/product-placeholder-2.jpg"],
+    sku: "MS-KIT-001",
+    variants: [
+      { id: "v9", size: "L", color: "Blue", stock: 25 },
+    ],
+  },
+  {
+    id: "6",
+    name: "Elite Compression Shorts",
+    slug: "elite-compression-shorts",
+    category: "sportswear",
+    price: 25.00,
+    image: "/images/product-placeholder-3.jpg",
+    description: "Advanced compression technology to improve blood flow and reduce muscle fatigue during athletic activities.",
+    images: ["/images/product-placeholder-3.jpg"],
+    sku: "MS-CP-001",
+    variants: [
+      { id: "v10", size: "M", color: "Black", stock: 40 },
+    ],
+  },
+];
+
+// Fetch single product by slug
+export async function getProductBySlug(slug: string) {
+  // Try to find in mock data first for development
+  const mockProduct = mockProducts.find(p => p.slug === slug);
+  if (mockProduct) return mockProduct;
+
+  try {
+    const product = await prisma.product.findUnique({
+      where: {
+        slug: slug,
+        // isActive: true
+      },
+      include: {
+        // variants: true,
+        // category: true,
+        // reviews: {
+        //   include: { user: true },
+        //   orderBy: { createdAt: 'desc' }
+        // }
+      }
+    });
+    return product;
+  } catch (error) {
+    console.error("Error fetching product by slug:", error);
+    return null;
+  }
+}
+
+// Fetch products by category
+export async function getProductsByCategory(category: string) {
+  // Filter mock data for development
+  const mockFiltered = mockProducts.filter(p => p.category.toLowerCase() === category.toLowerCase());
+  if (mockFiltered.length > 0) return mockFiltered;
+
+  try {
+    return await prisma.product.findMany({
+      where: {
+        category: {
+          // slug: category
+        },
+        // isActive: true
+      },
+      include: {
+        // variants: true,
+        // category: true
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching products by category:", error);
+    return [];
+  }
+}
+
+// Fetch all products
+export async function getAllProducts() {
+  try {
+    const products = await prisma.product.findMany();
+    return products.length > 0 ? products : mockProducts;
+  } catch (error) {
+    return mockProducts;
+  }
+}

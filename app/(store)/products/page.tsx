@@ -15,50 +15,20 @@ import {
 import ProductCard from "@/components/product/ProductCard";
 import FilterSidebar from "@/components/product/FilterSidebar";
 import { useFilters } from "@/hooks/useFilters";
+import { mockProducts as allProducts } from "@/lib/db/products";
 
 export default function ProductCatalog({ params }: { params?: { category?: string } }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const filters = useFilters();
 
-  // Mock Data
-  const productImages = [
-    "/images/products/jersey-front.jpg",
-    "/images/products/hoodie.jpg",
-    "/images/products/gloves-red.jpg",
-    "/images/products/duffle-bag.jpg",
-    "/images/product-placeholder.jpg",
-    "/images/product-placeholder-2.jpg",
-    "/images/product-placeholder-3.jpg",
-  ];
+  const activeCategory = params?.category?.toLowerCase();
 
-  const productNames = [
-    "Pro Elite Football Jersey",
-    "Urban Tech Hoodie",
-    "Heavyweight Boxing Gloves",
-    "Athletic Duffle Bag",
-    "Pro Series Training Kit",
-    "Elite Compression Shorts",
-    "Performance Athletic Jersey",
-    "Sport Tracksuit Pro",
-    "Premium Goalkeeper Gloves",
-    "Team Kit Bundle",
-    "Export Series Jersey",
-    "Champion Hoodie",
-  ];
+  const products = activeCategory 
+    ? allProducts.filter(p => p.category.toLowerCase() === activeCategory)
+    : allProducts;
 
-  const mockProducts = Array.from({ length: 12 }).map((_, i) => ({
-    id: i,
-    name: productNames[i] || `Pro Series ${i % 2 === 0 ? 'Athletic Jersey' : 'Training Kit'}`,
-    slug: productNames[i]?.toLowerCase().replace(/\s+/g, '-') || `product-${i}`,
-    category: params?.category ? params.category.toUpperCase() : (i % 4 === 0 ? 'SPORTSWEAR' : i % 4 === 1 ? 'CASUAL' : i % 4 === 2 ? 'GLOVES' : 'ACCESSORIES'),
-    price: 34.99 + i * 5,
-    image: productImages[i % productImages.length],
-    isExportReady: i % 3 === 0,
-    isOem: i % 4 === 0,
-  }));
-
-  const categoryTitle = params?.category 
-    ? `${params.category.replace('-', ' ').toUpperCase()} COLLECTION`
+  const categoryTitle = activeCategory 
+    ? `${activeCategory.replace('-', ' ').toUpperCase()} COLLECTION`
     : "ALL MEHARSTARE PRODUCTS";
 
   return (
@@ -70,13 +40,13 @@ export default function ProductCatalog({ params }: { params?: { category?: strin
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               <nav className="flex items-center space-x-2 text-xs text-neutral-500 uppercase tracking-widest mb-4">
-                <span className="hover:text-white cursor-pointer">Home</span>
+                <Link href="/" className="hover:text-white cursor-pointer">Home</Link>
                 <ChevronRight className="h-3 w-3" />
-                <span className="hover:text-white cursor-pointer">Products</span>
-                {params?.category && (
+                <Link href="/products" className="hover:text-white cursor-pointer">Products</Link>
+                {activeCategory && (
                   <>
                     <ChevronRight className="h-3 w-3" />
-                    <span className="text-primary">{params.category}</span>
+                    <span className="text-primary">{activeCategory}</span>
                   </>
                 )}
               </nav>
@@ -85,7 +55,7 @@ export default function ProductCatalog({ params }: { params?: { category?: strin
               </h1>
             </div>
             <div className="text-neutral-400 font-medium">
-              <span className="text-white text-2xl font-athletic">128</span> Products Found
+              <span className="text-white text-2xl font-athletic">{products.length}</span> Products Found
             </div>
           </div>
         </div>
@@ -143,7 +113,6 @@ export default function ProductCatalog({ params }: { params?: { category?: strin
                   <option value="low-high">Price: Low-High</option>
                   <option value="high-low">Price: High-Low</option>
                   <option value="best-selling">Best Selling</option>
-                  <option value="export-popular">Export Popular</option>
                 </select>
               </div>
             </div>
@@ -171,7 +140,7 @@ export default function ProductCatalog({ params }: { params?: { category?: strin
               'grid-cols-1'
             }`}>
               <AnimatePresence mode="popLayout">
-                {mockProducts.map((product, idx) => (
+                {products.map((product, idx) => (
                   <motion.div
                     key={product.id}
                     layout

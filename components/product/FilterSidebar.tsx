@@ -20,9 +20,10 @@ export default function FilterSidebar({ isMobile = false, onClose = () => {} }: 
   const materials = ["Cotton", "Polyester", "Fleece", "Leather"];
 
   const toggleCategory = (cat: string) => {
-    const next = filters.categories.includes(cat)
-      ? filters.categories.filter((c) => c !== cat)
-      : [...filters.categories, cat];
+    const slug = cat.toLowerCase().replace(/\s+/g, '-');
+    const next = filters.categories.includes(slug)
+      ? filters.categories.filter((c) => c !== slug)
+      : [...filters.categories, slug];
     filters.setCategories(next);
   };
 
@@ -41,19 +42,22 @@ export default function FilterSidebar({ isMobile = false, onClose = () => {} }: 
           Categories <ChevronDown className="h-4 w-4" />
         </h4>
         <div className="space-y-2">
-          {categories.map((cat) => (
-            <label key={cat} className="flex items-center space-x-3 cursor-pointer group">
-              <div 
-                className={`w-5 h-5 border-2 rounded transition-colors flex items-center justify-center ${
-                  filters.categories.includes(cat) ? 'bg-primary border-primary' : 'border-neutral-300 group-hover:border-primary'
-                }`}
-                onClick={() => toggleCategory(cat)}
-              >
-                {filters.categories.includes(cat) && <Check className="h-3 w-3 text-white" />}
-              </div>
-              <span className="text-sm text-neutral-600 group-hover:text-dark">{cat}</span>
-            </label>
-          ))}
+          {categories.map((cat) => {
+            const slug = cat.toLowerCase().replace(/\s+/g, '-');
+            return (
+              <label key={cat} className="flex items-center space-x-3 cursor-pointer group">
+                <div 
+                  className={`w-5 h-5 border-2 rounded transition-colors flex items-center justify-center ${
+                    filters.categories.includes(slug) ? 'bg-primary border-primary' : 'border-neutral-300 group-hover:border-primary'
+                  }`}
+                  onClick={() => toggleCategory(cat)}
+                >
+                  {filters.categories.includes(slug) && <Check className="h-3 w-3 text-white" />}
+                </div>
+                <span className="text-sm text-neutral-600 group-hover:text-dark">{cat}</span>
+              </label>
+            );
+          })}
         </div>
       </div>
 

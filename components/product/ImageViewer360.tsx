@@ -5,12 +5,16 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Rotate3d, Maximize, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 
-export default function ImageViewer360() {
+interface ImageViewer360Props {
+  productImages?: string[];
+}
+
+export default function ImageViewer360({ productImages = [] }: ImageViewer360Props) {
   const [activeImage, setActiveImage] = useState(0);
   const [is360, setIs360] = useState(false);
   const [rotation, setRotation] = useState(0);
 
-  const images = [
+  const images = productImages.length > 0 ? productImages : [
     "/images/product-placeholder.jpg",
     "/images/product-placeholder-2.jpg",
     "/images/product-placeholder-3.jpg",

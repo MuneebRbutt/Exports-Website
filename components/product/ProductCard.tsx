@@ -7,6 +7,7 @@ import { Eye, ShoppingCart, Heart, Star } from "lucide-react";
 import { Product } from "@/types";
 import { useCart } from "@/hooks/useCart";
 import toast from "react-hot-toast";
+import { getProductUrl } from "@/lib/utils/urls";
 
 interface ProductCardProps {
   product: any; // Using any temporarily for mock data, will use Product type in production
@@ -16,6 +17,7 @@ interface ProductCardProps {
 export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCardProps) {
   const isList = viewMode === 'LIST';
   const { addItem } = useCart();
+  const productUrl = getProductUrl(product);
 
   return (
     <motion.div
@@ -29,7 +31,7 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
     >
       {/* Image Area */}
       <div className={`relative bg-neutral-100 overflow-hidden ${isList ? 'w-1/3' : 'w-full aspect-[4/5]'}`}>
-        <Link href={`/products/${product.category.toLowerCase()}/${product.slug || product.id}`} className="absolute inset-0 z-0">
+        <Link href={productUrl} className="absolute inset-0 z-0">
           <Image
             src={product.image || "/images/product-placeholder.jpg"}
             alt={product.name}
@@ -48,7 +50,7 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
 
         {/* Quick Actions Overlay */}
         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 pointer-events-none">
-          <Link href={`/products/${product.category.toLowerCase()}/${product.slug || product.id}`} className="bg-white text-dark p-3 rounded-full hover:bg-primary hover:text-white transition-all transform hover:scale-110 pointer-events-auto">
+          <Link href={productUrl} className="bg-white text-dark p-3 rounded-full hover:bg-primary hover:text-white transition-all transform hover:scale-110 pointer-events-auto">
             <Eye className="h-5 w-5" />
           </Link>
           <button 
@@ -78,7 +80,7 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
       {/* Content Area */}
       <div className={`p-5 flex flex-col ${isList ? 'w-2/3 justify-center' : 'flex-grow'}`}>
         <div className="flex justify-between items-start mb-2">
-          <Link href={`/products/${product.category.toLowerCase()}/${product.slug || product.id}`}>
+          <Link href={productUrl}>
             <h3 className="text-lg font-athletic font-bold italic tracking-tight text-dark uppercase group-hover:text-primary transition-colors">
               {product.name}
             </h3>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/hooks/useCart";
 import toast from "react-hot-toast";
@@ -21,10 +21,23 @@ import { ColorSelector, SizeSelector } from "@/components/product/Selectors";
 import ProductTabs from "@/components/product/ProductTabs";
 import SizeGuideModal from "@/components/product/SizeGuideModal";
 import ProductCard from "@/components/product/ProductCard";
+import { mockProducts } from "@/lib/db/products";
+import { notFound } from "next/navigation";
 
 export default function ProductDetailPage({ params }: { params: { category: string, slug: string } }) {
+  const product = mockProducts.find(p => p.slug === params.slug);
+
+  if (!product) {
+    notFound();
+  }
+
   const [qty, setQty] = useState(1);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+
+  // Sync with top of page on load
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [params.slug]);
 
   const colors = [
     { name: "Black", hex: "#000000", inStock: true },
@@ -56,7 +69,7 @@ export default function ProductDetailPage({ params }: { params: { category: stri
         <ChevronRight className="h-3 w-3" />
         <Link href={`/products/${params.category}`} className="hover:text-dark">{params.category}</Link>
         <ChevronRight className="h-3 w-3" />
-        <span className="text-dark">Elite Pro Jersey</span>
+        <span className="text-dark">{product.name}</span>
       </nav>
 
       <div className="container mx-auto px-4">
@@ -64,7 +77,7 @@ export default function ProductDetailPage({ params }: { params: { category: stri
           
           {/* LEFT COLUMN: IMAGE VIEWER */}
           <div className="space-y-8">
-            <ImageViewer360 />
+            <ImageViewer360 productImages={product.images || [product.image]} />
           </div>
 
           {/* RIGHT COLUMN: PRODUCT INFO */}
@@ -77,8 +90,7 @@ export default function ProductDetailPage({ params }: { params: { category: stri
               </div>
               
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-athletic italic font-bold leading-tight tracking-tighter text-dark uppercase">
-                Elite Pro Series <br />
-                <span className="text-primary">Athletic Jersey</span>
+                {product.name}
               </h1>
 
               <div className="flex items-center space-x-6 text-sm">
@@ -87,7 +99,7 @@ export default function ProductDetailPage({ params }: { params: { category: stri
                   <button className="text-neutral-400 ml-2 hover:text-dark transition-colors border-b border-transparent hover:border-dark font-medium">24 Reviews</button>
                 </div>
                 <span className="text-neutral-300">|</span>
-                <span className="text-neutral-500 font-medium uppercase tracking-widest text-[10px]">SKU: MS-JSY-001</span>
+                <span className="text-neutral-500 font-medium uppercase tracking-widest text-[10px]">SKU: {product.sku}</span>
               </div>
             </div>
 
@@ -95,7 +107,7 @@ export default function ProductDetailPage({ params }: { params: { category: stri
             <div className="bg-neutral-50 p-8 rounded-3xl space-y-6 border border-neutral-100 shadow-sm relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-full translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform" />
               <div className="flex items-baseline space-x-3">
-                <span className="text-5xl font-athletic font-bold text-dark italic">$29.99</span>
+                <span className="text-5xl font-athletic font-bold text-dark italic">${product.price.toFixed(2)}</span>
                 <span className="text-xs text-neutral-400 font-medium uppercase tracking-widest">Retail Price (USD)</span>
               </div>
               <div className="flex items-center space-x-2 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
@@ -121,10 +133,10 @@ export default function ProductDetailPage({ params }: { params: { category: stri
                 <button 
                   onClick={() => {
                     useCart.getState().addItem({
-                      id: `prod-${params.slug || '1'}`,
-                      name: "Elite Pro Series Athletic Jersey",
-                      price: 29.99,
-                      image: "",
+                      id: product.id.toString(),
+                      name: product.name,
+                      price: product.price,
+                      image: product.image || "",
                       size: "M", // Hardcoded for demo
                       color: "Black", // Hardcoded for demo
                       quantity: qty
