@@ -20,7 +20,7 @@ export default function OrderReview({
   isPlacingOrder: boolean;
 }) {
   const [agreed, setAgreed] = useState(false);
-  const { items, isExportOrder } = useCart();
+  const { items } = useCart();
 
   return (
     <motion.div 
@@ -33,7 +33,7 @@ export default function OrderReview({
           <h5 className="font-bold uppercase text-[10px] tracking-widest text-neutral-400 mb-4">Shipping To</h5>
           <p className="text-sm text-dark font-medium">{shippingData?.fullName || "John Doe"}</p>
           <p className="text-sm text-neutral-500 leading-relaxed">
-            {shippingData?.addressLine1 || "123 Export Avenue"}, {shippingData?.city || "Sialkot"}, {shippingData?.country || "PK"}
+            {shippingData?.addressLine1 || "123 Street"}, {shippingData?.city || "Sialkot"}, {shippingData?.country || "PK"}
           </p>
         </div>
         <div className="py-6">
@@ -51,7 +51,7 @@ export default function OrderReview({
           <h5 className="font-bold uppercase text-[10px] tracking-widest text-neutral-400 mb-4">Order Items</h5>
           <div className="space-y-2">
             {items.map(item => {
-              const price = (isExportOrder && item.exportPrice) ? item.exportPrice : item.price;
+              const price = Number(item.price) || 0;
               return (
                 <div key={item.id} className="flex justify-between items-center text-sm font-bold">
                   <span className="font-medium text-neutral-600">{item.quantity} x {item.name} ({item.size})</span>

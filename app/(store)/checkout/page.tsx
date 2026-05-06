@@ -17,9 +17,9 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY 
 
 export default function CheckoutPage() {
   const [step, setStep] = useState(0);
-  const { items, getSubtotal, clearCart, isExportOrder } = useCart();
+  const { items, getSubtotal, clearCart } = useCart();
   const subtotal = getSubtotal();
-  const shippingCost = isExportOrder ? 0 : subtotal > 200 ? 0 : 25;
+  const shippingCost = subtotal > 200 ? 0 : 25;
 
   const [shippingData, setShippingData] = useState<ShippingFormData | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>("card");
@@ -96,7 +96,7 @@ export default function CheckoutPage() {
                 
                 <div className="space-y-4 mb-8 max-h-64 overflow-y-auto pr-2 no-scrollbar">
                   {items.map((item) => {
-                    const price = (isExportOrder && item.exportPrice) ? item.exportPrice : item.price;
+                    const price = Number(item.price) || 0;
                     return (
                       <div key={item.id} className="flex gap-4">
                         <div className="w-16 h-20 bg-neutral-200 rounded-lg flex-shrink-0 relative overflow-hidden">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -15,18 +15,36 @@ import {
 import ProductCard from "@/components/product/ProductCard";
 import FilterSidebar from "@/components/product/FilterSidebar";
 import { useFilters } from "@/hooks/useFilters";
-import { mockProducts as allProducts } from "@/lib/db/products";
 
 export default function ProductCatalog({ params }: { params?: { category?: string } }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [products, setProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const filters = useFilters();
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/admin/products');
+        const result = await response.json();
+        if (result.success) {
+          const activeCategory = params?.category?.toLowerCase();
+          const filtered = activeCategory 
+            ? result.data.filter((p: any) => p.category.toLowerCase() === activeCategory)
+            : result.data;
+          setProducts(filtered);
+        }
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProducts();
+  }, [params?.category]);
+
   const activeCategory = params?.category?.toLowerCase();
-
-  const products = activeCategory 
-    ? allProducts.filter(p => p.category.toLowerCase() === activeCategory)
-    : allProducts;
-
   const categoryTitle = activeCategory 
     ? `${activeCategory.replace('-', ' ').toUpperCase()} COLLECTION`
     : "ALL MEHARSTARE PRODUCTS";

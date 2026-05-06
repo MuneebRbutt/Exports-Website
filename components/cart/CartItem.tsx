@@ -8,38 +8,12 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 export default function CartItem({ item }: { item: ICartItem }) {
-  const { updateQuantity, removeItem, isExportOrder, toggleExportOrder } = useCart();
-  const price = isExportOrder && item.exportPrice ? item.exportPrice : item.price;
+  const { updateQuantity, removeItem } = useCart();
+  const price = Number(item.price) || 0;
 
   const handleUpdateQuantity = (newQuantity: number) => {
     if (newQuantity < 1) return;
-
     updateQuantity(item.id, newQuantity);
-
-    if (newQuantity === 50 && item.quantity < 50 && !isExportOrder) {
-      toast(
-        (t) => (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center space-x-2">
-              <Package className="h-5 w-5 text-primary flex-shrink-0" />
-              <span className="font-bold text-dark text-sm">
-                Buying 50+ units? You qualify for export pricing!
-              </span>
-            </div>
-            <button
-              onClick={() => {
-                toast.dismiss(t.id);
-                toggleExportOrder();
-              }}
-              className="text-xs font-bold text-primary hover:underline self-start uppercase tracking-widest"
-            >
-              View bulk rates →
-            </button>
-          </div>
-        ),
-        { duration: 6000, style: { maxWidth: "360px" } }
-      );
-    }
   };
 
   return (
@@ -57,11 +31,6 @@ export default function CartItem({ item }: { item: ICartItem }) {
         ) : (
           <div className="absolute inset-0 bg-neutral-200 flex items-center justify-center">
             <Package className="h-8 w-8 text-neutral-400" />
-          </div>
-        )}
-        {isExportOrder && item.exportPrice && (
-          <div className="absolute top-1.5 left-1.5 bg-primary text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">
-            Export
           </div>
         )}
       </div>
@@ -113,9 +82,6 @@ export default function CartItem({ item }: { item: ICartItem }) {
             </p>
             <p className="text-[10px] text-neutral-400 uppercase tracking-tighter">
               ${price.toFixed(2)} / unit
-              {isExportOrder && item.exportPrice && (
-                <span className="text-primary ml-1">(export)</span>
-              )}
             </p>
           </div>
         </div>

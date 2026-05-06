@@ -59,11 +59,18 @@ const ImageUploader = ({ images, onChange, maxImages = 8, label = "Product Image
               className="hidden" 
               multiple 
               accept="image/*"
-              onChange={(e) => {
-                // Mock upload for now
+              onChange={async (e) => {
                 const files = Array.from(e.target.files || []);
-                const mockUrls = files.map(f => URL.createObjectURL(f));
-                onChange([...images, ...mockUrls].slice(0, maxImages));
+                const base64Files = await Promise.all(
+                  files.map(file => {
+                    return new Promise<string>((resolve) => {
+                      const reader = new FileReader();
+                      reader.onloadend = () => resolve(reader.result as string);
+                      reader.readAsDataURL(file);
+                    });
+                  })
+                );
+                onChange([...images, ...base64Files].slice(0, maxImages));
               }}
             />
           </label>

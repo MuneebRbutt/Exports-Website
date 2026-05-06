@@ -8,9 +8,7 @@ import CartSummary from "@/components/cart/CartSummary";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function CartPage() {
-  const { items, isExportOrder, toggleExportOrder } = useCart();
-  const totalQty = items.reduce((acc, item) => acc + item.quantity, 0);
-  const qualifiesForExport = totalQty >= 50;
+  const { items } = useCart();
 
   if (items.length === 0) {
     return (
@@ -48,46 +46,6 @@ export default function CartPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
           {/* LEFT: CART ITEMS */}
           <div className="lg:col-span-2">
-            <AnimatePresence mode="popLayout">
-              {qualifiesForExport && !isExportOrder && (
-                <motion.div 
-                  initial={{ y: -20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  className="bg-primary/5 border border-primary/20 p-6 rounded-2xl mb-10 flex flex-col md:flex-row items-center justify-between gap-6"
-                >
-                  <div className="flex items-center space-x-4">
-                    <div className="bg-primary p-3 rounded-xl shadow-lg shadow-primary/20">
-                      <Globe className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-dark uppercase tracking-tight">EXPORT PRICING UNLOCKED</h4>
-                      <p className="text-xs text-neutral-500">Your order of {totalQty} units qualifies for bulk manufacturing rates.</p>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={toggleExportOrder}
-                    className="whitespace-nowrap bg-dark text-white px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-primary transition-all shadow-lg"
-                  >
-                    Switch to Export Order
-                  </button>
-                </motion.div>
-              )}
-
-              {isExportOrder && (
-                <motion.div 
-                  initial={{ scale: 0.98, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="bg-dark text-white p-6 rounded-2xl mb-10 flex items-center justify-between shadow-2xl"
-                >
-                  <div className="flex items-center space-x-4">
-                    <Factory className="h-6 w-6 text-primary" />
-                    <span className="font-athletic font-bold uppercase tracking-widest">🏭 CURRENTLY VIEWING EXPORT PRICING</span>
-                  </div>
-                  <button onClick={toggleExportOrder} className="text-[10px] underline uppercase tracking-widest opacity-60 hover:opacity-100">Switch back to retail</button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             <div className="space-y-2">
               {items.map((item) => (
                 <CartItem key={item.id} item={item} />

@@ -21,23 +21,49 @@ import { ColorSelector, SizeSelector } from "@/components/product/Selectors";
 import ProductTabs from "@/components/product/ProductTabs";
 import SizeGuideModal from "@/components/product/SizeGuideModal";
 import ProductCard from "@/components/product/ProductCard";
-import { mockProducts } from "@/lib/db/products";
 import { notFound } from "next/navigation";
 
 export default function ProductDetailPage({ params }: { params: { category: string, slug: string } }) {
-  const product = mockProducts.find(p => p.slug === params.slug);
-
-  if (!product) {
-    notFound();
-  }
-
+  const [product, setProduct] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [qty, setQty] = useState(1);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/admin/products');
+        const result = await response.json();
+        if (result.success) {
+          const found = result.data.find((p: any) => p.slug === params.slug);
+          if (found) {
+            setProduct(found);
+          } else {
+            setProduct(null);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch product:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [params.slug]);
 
   // Sync with top of page on load
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [params.slug]);
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center bg-white text-dark font-athletic text-2xl italic">Loading...</div>;
+  }
+
+  if (!product) {
+    notFound();
+  }
 
   const colors = [
     { name: "Black", hex: "#000000", inStock: true },
@@ -77,7 +103,10 @@ export default function ProductDetailPage({ params }: { params: { category: stri
           
           {/* LEFT COLUMN: IMAGE VIEWER */}
           <div className="space-y-8">
-            <ImageViewer360 productImages={product.images || [product.image]} />
+            <ImageViewer360 
+              productImages={product.images || [product.image]} 
+              view360={product.view360}
+            />
           </div>
 
           {/* RIGHT COLUMN: PRODUCT INFO */}
@@ -107,7 +136,9 @@ export default function ProductDetailPage({ params }: { params: { category: stri
             <div className="bg-neutral-50 p-8 rounded-3xl space-y-6 border border-neutral-100 shadow-sm relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-full translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform" />
               <div className="flex items-baseline space-x-3">
-                <span className="text-5xl font-athletic font-bold text-dark italic">${product.price.toFixed(2)}</span>
+                <span className="text-5xl font-athletic font-bold text-dark italic">
+                  ${(Number(product.price) || Number(product.retailPrice) || 0).toFixed(2)}
+                </span>
                 <span className="text-xs text-neutral-400 font-medium uppercase tracking-widest">Retail Price (USD)</span>
               </div>
               <div className="flex items-center space-x-2 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
@@ -132,10 +163,11 @@ export default function ProductDetailPage({ params }: { params: { category: stri
                 </div>
                 <button 
                   onClick={() => {
+                    const price = Number(product.price) || Number(product.retailPrice) || 0;
                     useCart.getState().addItem({
                       id: product.id.toString(),
                       name: product.name,
-                      price: product.price,
+                      price: price,
                       image: product.image || "",
                       size: "M", // Hardcoded for demo
                       color: "Black", // Hardcoded for demo

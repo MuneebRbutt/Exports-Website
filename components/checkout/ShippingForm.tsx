@@ -31,14 +31,12 @@ export default function ShippingForm({
   onNext: (data: ShippingFormData) => void,
   defaultValues?: Partial<ShippingFormData>
 }) {
-  const { isExportOrder } = useCart();
-  
   const { register, handleSubmit, watch, formState: { errors } } = useForm<ShippingFormData>({
     resolver: zodResolver(shippingSchema),
     defaultValues: {
       phoneCode: "+92",
       country: "PK",
-      shippingMethod: isExportOrder ? "export_freight" : "standard",
+      shippingMethod: "standard",
       ...defaultValues
     }
   });
@@ -165,53 +163,33 @@ export default function ShippingForm({
           <h4 className="font-athletic font-bold uppercase tracking-widest text-sm border-b pb-2">Shipping Method</h4>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {!isExportOrder && (
-              <>
-                <label className={`flex items-center justify-between p-6 border-2 rounded-2xl cursor-pointer transition-all ${selectedMethod === 'standard' ? 'border-primary bg-primary/5' : 'border-neutral-100 hover:border-dark'}`}>
-                  <div className="flex items-center space-x-4">
-                    <input type="radio" value="standard" {...register("shippingMethod")} className="hidden" />
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${selectedMethod === 'standard' ? 'bg-primary text-white' : 'bg-neutral-200 text-transparent'}`}>
-                      <Check className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-sm uppercase">Standard Shipping</p>
-                      <p className="text-xs text-neutral-500">7-14 Business Days</p>
-                    </div>
-                  </div>
-                  <span className="font-bold text-dark">FREE</span>
-                </label>
-
-                <label className={`flex items-center justify-between p-6 border-2 rounded-2xl cursor-pointer transition-all ${selectedMethod === 'express' ? 'border-primary bg-primary/5' : 'border-neutral-100 hover:border-dark'}`}>
-                  <div className="flex items-center space-x-4">
-                    <input type="radio" value="express" {...register("shippingMethod")} className="hidden" />
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${selectedMethod === 'express' ? 'bg-primary text-white' : 'bg-neutral-200 text-transparent'}`}>
-                      <Check className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-sm uppercase">Express Shipping</p>
-                      <p className="text-xs text-neutral-500">3-5 Business Days</p>
-                    </div>
-                  </div>
-                  <span className="font-bold text-dark">$35.00</span>
-                </label>
-              </>
-            )}
-
-            {isExportOrder && (
-              <label className={`col-span-1 md:col-span-2 flex items-center justify-between p-6 border-2 rounded-2xl cursor-pointer transition-all ${selectedMethod === 'export_freight' ? 'border-primary bg-primary/5' : 'border-neutral-100 hover:border-dark'}`}>
-                <div className="flex items-center space-x-4">
-                  <input type="radio" value="export_freight" {...register("shippingMethod")} className="hidden" />
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${selectedMethod === 'export_freight' ? 'bg-primary text-white' : 'bg-neutral-200 text-transparent'}`}>
-                    <Check className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-sm uppercase">DHL Export Freight</p>
-                    <p className="text-xs text-neutral-500">Bulk Shipping (TBD)</p>
-                  </div>
+            <label className={`flex items-center justify-between p-6 border-2 rounded-2xl cursor-pointer transition-all ${selectedMethod === 'standard' ? 'border-primary bg-primary/5' : 'border-neutral-100 hover:border-dark'}`}>
+              <div className="flex items-center space-x-4">
+                <input type="radio" value="standard" {...register("shippingMethod")} className="hidden" />
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${selectedMethod === 'standard' ? 'bg-primary text-white' : 'bg-neutral-200 text-transparent'}`}>
+                  <Check className="h-4 w-4" />
                 </div>
-                <span className="font-bold text-dark">Custom Quote</span>
-              </label>
-            )}
+                <div>
+                  <p className="font-bold text-sm uppercase">Standard Shipping</p>
+                  <p className="text-xs text-neutral-500">7-14 Business Days</p>
+                </div>
+              </div>
+              <span className="font-bold text-dark">FREE</span>
+            </label>
+
+            <label className={`flex items-center justify-between p-6 border-2 rounded-2xl cursor-pointer transition-all ${selectedMethod === 'express' ? 'border-primary bg-primary/5' : 'border-neutral-100 hover:border-dark'}`}>
+              <div className="flex items-center space-x-4">
+                <input type="radio" value="express" {...register("shippingMethod")} className="hidden" />
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${selectedMethod === 'express' ? 'bg-primary text-white' : 'bg-neutral-200 text-transparent'}`}>
+                  <Check className="h-4 w-4" />
+                </div>
+                <div>
+                  <p className="font-bold text-sm uppercase">Express Shipping</p>
+                  <p className="text-xs text-neutral-500">3-5 Business Days</p>
+                </div>
+              </div>
+              <span className="font-bold text-dark">$35.00</span>
+            </label>
           </div>
         </div>
 

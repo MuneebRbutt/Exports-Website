@@ -1,20 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, Search, User, Menu } from "lucide-react";
+import { ShoppingCart, Search, User, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useCart } from "@/hooks/useCart";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { items } = useCart();
+  const router = useRouter();
   
   const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   const navLinks = [
     { name: "Sportswear", href: "/products/sportswear" },
@@ -49,14 +59,18 @@ export default function Navbar() {
 
           {/* Icons */}
           <div className="flex items-center space-x-6">
-            <div className="hidden md:flex relative">
+            <form onSubmit={handleSearch} className="hidden md:flex relative">
               <input
                 type="text"
                 placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="bg-neutral-800 text-sm px-4 py-2 rounded-full w-48 focus:w-64 transition-all focus:outline-none focus:ring-2 focus:ring-primary"
               />
-              <Search className="absolute right-3 top-2.5 h-4 w-4 text-neutral-400" />
-            </div>
+              <button type="submit">
+                <Search className="absolute right-3 top-2.5 h-4 w-4 text-neutral-400 hover:text-primary transition-colors" />
+              </button>
+            </form>
             
             <Link href="/cart" className="relative hover:text-primary transition-colors">
               <ShoppingCart className="h-6 w-6" />

@@ -1,0 +1,177 @@
+[
+  {
+    "id": "1",
+    "name": "Elite Pro Athletic Jersey",
+    "slug": "elite-pro-jersey",
+    "category": "sportswear",
+    "price": 29.99,
+    "image": "/images/products/jersey-front.jpg",
+    "description": "Premium moisture-wicking athletic jersey designed for professional performance. Featuring breathable mesh panels and ergonomic fit.",
+    "images": [
+      "/images/products/jersey-front.jpg",
+      "/images/products/jersey-back.jpg",
+      "/images/product-placeholder-2.jpg"
+    ],
+    "sku": "MS-JSY-001",
+    "variants": [
+      {
+        "id": "v1",
+        "size": "S",
+        "color": "Black",
+        "stock": 50
+      },
+      {
+        "id": "v2",
+        "size": "M",
+        "color": "Black",
+        "stock": 75
+      },
+      {
+        "id": "v3",
+        "size": "L",
+        "color": "Black",
+        "stock": 30
+      }
+    ]
+  },
+  {
+    "id": "2",
+    "name": "Urban Tech Hoodie",
+    "slug": "urban-tech-hoodie",
+    "category": "casual-wear",
+    "price": 49.99,
+    "image": "/images/products/hoodie.jpg",
+    "description": "Stylish and functional tech hoodie for everyday wear. Made with water-resistant fabric and hidden pockets.",
+    "images": [
+      "/images/products/hoodie.jpg",
+      "/images/product-placeholder.jpg"
+    ],
+    "sku": "MS-HUD-022",
+    "variants": [
+      {
+        "id": "v4",
+        "size": "M",
+        "color": "Grey",
+        "stock": 20
+      },
+      {
+        "id": "v5",
+        "size": "L",
+        "color": "Grey",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "name": "Pro Leather Boxing Gloves",
+    "slug": "pro-boxing-gloves",
+    "category": "gloves",
+    "price": 85,
+    "image": "/images/products/gloves-red.jpg",
+    "description": "Handcrafted genuine leather boxing gloves with multi-layer foam padding for maximum protection and comfort.",
+    "images": [
+      "/images/products/gloves-red.jpg",
+      "/images/product-placeholder-3.jpg"
+    ],
+    "sku": "MS-GLV-001",
+    "variants": [
+      {
+        "id": "v6",
+        "size": "12oz",
+        "color": "Red",
+        "stock": 10
+      },
+      {
+        "id": "v7",
+        "size": "14oz",
+        "color": "Red",
+        "stock": 12
+      }
+    ]
+  },
+  {
+    "id": "4",
+    "name": "Athletic Duffle Bag",
+    "slug": "athletic-duffle-bag",
+    "category": "accessories",
+    "price": 39.99,
+    "image": "/images/products/duffle-bag.jpg",
+    "description": "Durable gym bag with separate shoe compartment and waterproof lining. Perfect for all your training gear.",
+    "images": [
+      "/images/products/duffle-bag.jpg",
+      "/images/product-placeholder-4.jpg"
+    ],
+    "sku": "MS-BAG-005",
+    "variants": [
+      {
+        "id": "v8",
+        "size": "One Size",
+        "color": "Black",
+        "stock": 100
+      }
+    ]
+  },
+  {
+    "id": "5",
+    "name": "Premium Training Kit",
+    "slug": "premium-training-kit",
+    "category": "sportswear",
+    "price": 55,
+    "image": "/images/product-placeholder-2.jpg",
+    "description": "Complete professional training kit including jersey and shorts. Optimized for high-intensity workouts.",
+    "images": [
+      "/images/product-placeholder-2.jpg"
+    ],
+    "sku": "MS-KIT-001",
+    "variants": [
+      {
+        "id": "v9",
+        "size": "L",
+        "color": "Blue",
+        "stock": 25
+      }
+    ]
+  },
+  {
+    "id": "6",
+    "name": "Elite Compression Shorts",
+    "slug": "elite-compression-shorts",
+    "category": "sportswear",
+    "price": 25,
+    "image": "/images/product-placeholder-3.jpg",
+    "description": "Advanced compression technology to improve blood flow and reduce muscle fatigue during athletic activities.",
+    "images": [
+      "/images/product-placeholder-3.jpg"
+    ],
+    "sku": "MS-CP-001",
+    "variants": [
+      {
+        "id": "v10",
+        "size": "M",
+        "color": "Black",
+        "stock": 40
+      }
+    ]
+  },
+  {
+    "name": "demo product",
+    "slug": "demo-product",
+    "description": "Handmade Demo ",
+    "category": "gloves",
+    "retailPrice": 0,
+    "costPrice": 11.02,
+    "metaTitle": "",
+    "metaDescription": "",
+    "keywords": "",
+    "status": "draft",
+    "images": [
+      "blob:http://localhost:3001/2799f258-ec44-40db-9fa5-b16842a8b8a6",
+      "blob:http://localhost:3001/4f183782-572c-4faa-babc-1647399eba2d"
+    ],
+    "view360": [],
+    "variants": [],
+    "id": "wnxyjqjkr",
+    "image": "blob:http://localhost:3001/2799f258-ec44-40db-9fa5-b16842a8b8a6"
+  }
+]

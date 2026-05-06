@@ -1,55 +1,61 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Plus, Search, Filter, MoreHorizontal, Download } from 'lucide-react';
 import DataTable from '@/components/admin/DataTable';
-
-const mockProducts = [
-  { 
-    id: '1', 
-    image: '/images/products/gloves-red.jpg', 
-    name: 'Pro Leather Boxing Gloves', 
-    category: 'Gloves', 
-    sku: 'GLV-001', 
-    stock: 45, 
-    retailPrice: '$85.00', 
-    status: 'ACTIVE' 
-  },
-  { 
-    id: '2', 
-    image: '/images/products/hoodie.jpg', 
-    name: 'Elite Training Hoodie', 
-    category: 'Sportswear', 
-    sku: 'HUD-022', 
-    stock: 120, 
-    retailPrice: '$55.00', 
-    status: 'ACTIVE' 
-  },
-  { 
-    id: '3', 
-    image: '/images/products/tracksuit.jpg', 
-    name: 'Performance Tracksuit', 
-    category: 'Sportswear', 
-    sku: 'TRK-009', 
-    stock: 0, 
-    retailPrice: '$120.00', 
-    status: 'DRAFT' 
-  },
-  { 
-    id: '4', 
-    image: '/images/products/duffle-bag.jpg', 
-    name: 'Gear Duffle Bag', 
-    category: 'Accessories', 
-    sku: 'BAG-005', 
-    stock: 15, 
-    retailPrice: '$45.00', 
-    status: 'ARCHIVED' 
-  },
-];
+import { useRouter } from 'next/navigation';
 
 const ProductsPage = () => {
+  const router = useRouter();
   const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [dbProducts, setDbProducts] = useState<any[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/admin/products');
+        const result = await response.json();
+        if (result.success) {
+          setDbProducts(result.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    let filtered = dbProducts.map(p => ({
+      ...p,
+      stock: p.variants?.reduce((acc: number, v: any) => acc + v.stock, 0) || 0,
+      retailPrice: `$${(Number(p.price) || Number(p.retailPrice) || 0).toFixed(2)}`,
+      status: p.status?.toUpperCase() || 'ACTIVE'
+    }));
+
+    if (search) {
+      const q = search.toLowerCase();
+      filtered = filtered.filter(p => 
+        p.name.toLowerCase().includes(q) || 
+        p.sku?.toLowerCase().includes(q) || 
+        p.category.toLowerCase().includes(q)
+      );
+    }
+
+    if (categoryFilter) {
+      filtered = filtered.filter(p => p.category.toLowerCase() === categoryFilter.toLowerCase());
+    }
+
+    setFilteredProducts(filtered);
+  }, [search, categoryFilter, dbProducts]);
 
   const columns = [
     { 
@@ -129,12 +135,22 @@ const ProductsPage = () => {
           />
         </div>
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <select className="flex-1 md:flex-none bg-[#0F0F0F] border border-[#333] rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-[#E84118] appearance-none cursor-pointer">
+          <select 
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="flex-1 md:flex-none bg-[#0F0F0F] border border-[#333] rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-[#E84118] appearance-none cursor-pointer"
+          >
             <option value="">All Categories</option>
             <option value="sportswear">Sportswear</option>
+            <option value="casual-wear">Casual Wear</option>
             <option value="gloves">Gloves</option>
+            <option value="accessories">Accessories</option>
           </select>
-          <select className="flex-1 md:flex-none bg-[#0F0F0F] border border-[#333] rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-[#E84118] appearance-none cursor-pointer">
+          <select 
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="flex-1 md:flex-none bg-[#0F0F0F] border border-[#333] rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-[#E84118] appearance-none cursor-pointer"
+          >
             <option value="">All Status</option>
             <option value="active">Active</option>
             <option value="draft">Draft</option>
@@ -158,8 +174,8 @@ const ProductsPage = () => {
       {/* Data Table */}
       <DataTable 
         columns={columns} 
-        data={mockProducts}
-        onEdit={(item) => console.log('Edit', item)}
+        data={filteredProducts}
+        onEdit={(item) => router.push(`/admin/products/${item.slug}`)}
         onDelete={(item) => console.log('Delete', item)}
         onDuplicate={(item) => console.log('Duplicate', item)}
       />

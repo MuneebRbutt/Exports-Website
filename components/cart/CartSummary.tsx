@@ -17,7 +17,6 @@ type ShippingMethod = {
 const shippingMethods: ShippingMethod[] = [
   { id: "standard", label: "Standard Shipping", desc: "7-14 business days", cost: "free", icon: Package2 },
   { id: "express", label: "Express Shipping", desc: "3-5 business days", cost: 35, icon: Zap },
-  { id: "export_freight", label: "DHL Export Freight", desc: "Bulk shipping — custom quote", cost: "quote", icon: Truck },
 ];
 
 interface CartSummaryProps {
@@ -25,18 +24,16 @@ interface CartSummaryProps {
 }
 
 export default function CartSummary({ discount = 0 }: CartSummaryProps) {
-  const { getSubtotal, isExportOrder } = useCart();
+  const { getSubtotal } = useCart();
   const [selectedShipping, setSelectedShipping] = useState("standard");
   const [internalDiscount, setInternalDiscount] = useState(0);
 
   const subtotal = getSubtotal();
 
   const getShippingCost = () => {
-    if (isExportOrder) return 0;
     const method = shippingMethods.find((m) => m.id === selectedShipping);
     if (!method) return 0;
     if (method.cost === "free") return subtotal > 200 ? 0 : 15;
-    if (method.cost === "quote") return 0;
     return method.cost as number;
   };
 
@@ -52,51 +49,47 @@ export default function CartSummary({ discount = 0 }: CartSummaryProps) {
       </h2>
 
       {/* Shipping Method Selection */}
-      {!isExportOrder && (
-        <div className="space-y-3">
-          <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">
-            Shipping Method
-          </label>
-          <div className="space-y-2">
-            {shippingMethods.map((method) => {
-              const Icon = method.icon;
-              const isSelected = selectedShipping === method.id;
-              return (
-                <button
-                  key={method.id}
-                  onClick={() => setSelectedShipping(method.id)}
-                  className={`w-full flex items-center justify-between p-3 rounded-xl border-2 text-left transition-all ${
-                    isSelected
-                      ? "border-primary bg-primary/5"
-                      : "border-neutral-100 hover:border-neutral-300 bg-white"
-                  }`}
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className={`p-1.5 rounded-lg ${isSelected ? "bg-primary text-white" : "bg-neutral-100 text-neutral-400"}`}>
-                      <Icon className="h-3.5 w-3.5" />
-                    </div>
-                    <div>
-                      <p className={`text-xs font-bold uppercase tracking-tight ${isSelected ? "text-dark" : "text-neutral-500"}`}>
-                        {method.label}
-                      </p>
-                      <p className="text-[10px] text-neutral-400">{method.desc}</p>
-                    </div>
+      <div className="space-y-3">
+        <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">
+          Shipping Method
+        </label>
+        <div className="space-y-2">
+          {shippingMethods.map((method) => {
+            const Icon = method.icon;
+            const isSelected = selectedShipping === method.id;
+            return (
+              <button
+                key={method.id}
+                onClick={() => setSelectedShipping(method.id)}
+                className={`w-full flex items-center justify-between p-3 rounded-xl border-2 text-left transition-all ${
+                  isSelected
+                    ? "border-primary bg-primary/5"
+                    : "border-neutral-100 hover:border-neutral-300 bg-white"
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className={`p-1.5 rounded-lg ${isSelected ? "bg-primary text-white" : "bg-neutral-100 text-neutral-400"}`}>
+                    <Icon className="h-3.5 w-3.5" />
                   </div>
-                  <span className={`text-xs font-bold ${isSelected ? "text-primary" : "text-neutral-400"}`}>
-                    {method.cost === "free"
-                      ? subtotal > 200
-                        ? "FREE"
-                        : "$15.00"
-                      : method.cost === "quote"
-                      ? "Custom"
-                      : `$${(method.cost as number).toFixed(2)}`}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+                  <div>
+                    <p className={`text-xs font-bold uppercase tracking-tight ${isSelected ? "text-dark" : "text-neutral-500"}`}>
+                      {method.label}
+                    </p>
+                    <p className="text-[10px] text-neutral-400">{method.desc}</p>
+                  </div>
+                </div>
+                <span className={`text-xs font-bold ${isSelected ? "text-primary" : "text-neutral-400"}`}>
+                  {method.cost === "free"
+                    ? subtotal > 200
+                      ? "FREE"
+                      : "$15.00"
+                    : `$${(method.cost as number).toFixed(2)}`}
+                </span>
+              </button>
+            );
+          })}
         </div>
-      )}
+      </div>
 
       {/* Price Breakdown */}
       <div className="space-y-3 pt-2">
@@ -107,11 +100,7 @@ export default function CartSummary({ discount = 0 }: CartSummaryProps) {
         <div className="flex justify-between text-sm">
           <span className="text-neutral-500">Shipping</span>
           <span className="font-bold text-dark">
-            {isExportOrder
-              ? "Custom Quote"
-              : selectedMethod?.cost === "quote"
-              ? "Custom Quote"
-              : shippingCost === 0
+            {shippingCost === 0
               ? "FREE"
               : `$${shippingCost.toFixed(2)}`}
           </span>

@@ -33,7 +33,7 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
       <div className={`relative bg-neutral-100 overflow-hidden ${isList ? 'w-1/3' : 'w-full aspect-[4/5]'}`}>
         <Link href={productUrl} className="absolute inset-0 z-0">
           <Image
-            src={product.image || "/images/product-placeholder.jpg"}
+            src={product.image || product.img || "/images/product-placeholder.jpg"}
             alt={product.name}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -56,11 +56,12 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
           <button 
             onClick={(e) => {
               e.preventDefault();
+              const price = Number(product.price) || Number(product.retailPrice) || 0;
               addItem({
                 id: product.id.toString(),
                 name: product.name,
-                price: product.price,
-                image: product.image || "/images/product-placeholder.jpg",
+                price: price,
+                image: product.image || product.img || "/images/product-placeholder.jpg",
                 size: "L", // Default mock size
                 color: "Black", // Default mock color
                 quantity: 1
@@ -106,15 +107,11 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
         {/* Pricing */}
         <div className="mt-auto pt-4 border-t border-neutral-50">
           <div className="flex items-baseline space-x-2">
-            <span className="text-xl font-bold text-dark">${product.price.toFixed(2)}</span>
+            <span className="text-xl font-bold text-dark">
+              ${(Number(product.price) || Number(product.retailPrice) || 0).toFixed(2)}
+            </span>
             <span className="text-[10px] text-neutral-400 font-medium">Retail</span>
           </div>
-          {product.isExportReady && (
-            <div className="flex items-center space-x-1 mt-1 text-primary font-bold">
-              <span className="text-xs uppercase tracking-widest font-athletic">Export: From $12.50</span>
-              <span className="text-[9px] text-neutral-400 font-normal normal-case">(50+ units)</span>
-            </div>
-          )}
         </div>
       </div>
     </motion.div>

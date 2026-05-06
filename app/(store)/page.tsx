@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -34,14 +35,26 @@ const staggerContainer = {
 
 export default function Home() {
   const { addItem } = useCart();
-  const featuredProducts = [
-    { id: 1, name: "Elite Pro Athletic Jersey", price: 29.99, img: "/images/products/jersey-front.jpg", isExport: true, slug: "elite-pro-jersey", category: "sportswear" },
-    { id: 2, name: "Urban Tech Hoodie", price: 49.99, img: "/images/products/hoodie.jpg", isExport: false, slug: "urban-tech-hoodie", category: "casual-wear" },
-    { id: 3, name: "Pro Leather Boxing Gloves", price: 85.00, img: "/images/products/gloves-red.jpg", isExport: true, slug: "pro-boxing-gloves", category: "gloves" },
-    { id: 4, name: "Athletic Duffle Bag", price: 39.99, img: "/images/products/duffle-bag.jpg", isExport: true, slug: "athletic-duffle-bag", category: "accessories" },
-    { id: 5, name: "Premium Training Kit", price: 55.00, img: "/images/product-placeholder-2.jpg", isExport: false, slug: "premium-training-kit", category: "sportswear" },
-    { id: 6, name: "Elite Compression Shorts", price: 25.00, img: "/images/product-placeholder-3.jpg", isExport: true, slug: "elite-compression-shorts", category: "sportswear" },
-  ];
+  const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const response = await fetch('/api/admin/products');
+        const result = await response.json();
+        if (result.success) {
+          // Just take the first 6 as featured
+          setFeaturedProducts(result.data.slice(0, 6).map((p: any) => ({
+            ...p,
+            img: p.image // Map image to img for homepage card compatibility
+          })));
+        }
+      } catch (error) {
+        console.error("Failed to fetch featured products:", error);
+      }
+    };
+    fetchFeatured();
+  }, []);
 
   return (
     <div className="flex flex-col">
@@ -186,11 +199,12 @@ export default function Home() {
                     <button 
                       onClick={(e) => {
                         e.preventDefault();
+                        const price = Number(product.price) || Number(product.retailPrice) || 0;
                         addItem({
                           id: product.id.toString(),
                           name: product.name,
-                          price: product.price,
-                          image: product.img,
+                          price: price,
+                          image: product.img || product.image || "/images/product-placeholder.jpg",
                           size: "L",
                           color: "Black",
                           quantity: 1
@@ -207,16 +221,19 @@ export default function Home() {
                       <Link href={productUrl}>
                         <h4 className="text-xl font-bold text-dark hover:text-primary transition-colors">{product.name}</h4>
                       </Link>
-                      <span className="text-primary font-bold tracking-tighter">${product.price.toFixed(2)}</span>
+                      <span className="text-primary font-bold tracking-tighter">
+                        ${(Number(product.price) || Number(product.retailPrice) || 0).toFixed(2)}
+                      </span>
                     </div>
                     <p className="text-xs text-neutral-400 uppercase tracking-widest mb-6">Meharstare Original</p>
                     <button 
                       onClick={() => {
+                        const price = Number(product.price) || Number(product.retailPrice) || 0;
                         addItem({
                           id: product.id.toString(),
                           name: product.name,
-                          price: product.price,
-                          image: product.img,
+                          price: price,
+                          image: product.img || product.image || "/images/product-placeholder.jpg",
                           size: "L",
                           color: "Black",
                           quantity: 1
