@@ -9,12 +9,14 @@ import ImageUploader from './ImageUploader';
 import VariantBuilder from './VariantBuilder';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { categories, getCategoryBySlug } from '@/lib/data/categories';
 
 const productSchema = z.object({
   name: z.string().min(3, 'Name is too short'),
   slug: z.string().min(3, 'Slug is required'),
   description: z.string().min(10, 'Description is too short'),
   category: z.string().min(1, 'Category is required'),
+  subcategory: z.string().optional(),
   retailPrice: z.number().min(0),
   costPrice: z.number().min(0),
   metaTitle: z.string().optional(),
@@ -40,6 +42,10 @@ const ProductForm = ({ initialData }: { initialData?: any }) => {
       costPrice: 0,
     }
   });
+
+  const selectedCategory = watch('category');
+  const selectedSubcategory = watch('subcategory');
+  const availableSubcategories = selectedCategory ? getCategoryBySlug(selectedCategory)?.subcategories || [] : [];
 
   const onSubmit = async (data: ProductFormData) => {
     setIsSubmitting(true);
@@ -145,18 +151,46 @@ const ProductForm = ({ initialData }: { initialData?: any }) => {
               {errors.description && <p className="text-red-500 text-[10px]">{errors.description.message}</p>}
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-500 uppercase">Category</label>
-              <select 
-                {...register('category')}
-                className="w-full bg-[#0F0F0F] border border-[#333] rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-[#E84118] transition-colors appearance-none"
-              >
-                <option value="">Select Category</option>
-                <option value="sportswear">Sportswear</option>
-                <option value="casual-wear">Casual Wear</option>
-                <option value="gloves">Gloves</option>
-                <option value="accessories">Accessories</option>
-              </select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Parent Category */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-gray-500 uppercase">Category *</label>
+                <select
+                  {...register('category')}
+                  onChange={(e) => {
+                    register('category').onChange(e);
+                    setValue('subcategory', '');
+                  }}
+                  className={`w-full bg-[#0F0F0F] border ${errors.category ? 'border-red-500' : 'border-[#333]'} rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-[#E84118] transition-colors appearance-none`}
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.slug}>{cat.name}</option>
+                  ))}
+                </select>
+                {errors.category && <p className="text-red-500 text-[10px]">{errors.category.message}</p>}
+              </div>
+
+              {/* Subcategory */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-gray-500 uppercase">Subcategory *</label>
+                <select
+                  {...register('subcategory')}
+                  disabled={!selectedCategory || availableSubcategories.length === 0}
+                  className="w-full bg-[#0F0F0F] border border-[#333] rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-[#E84118] transition-colors appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option value="">
+                    {!selectedCategory 
+                      ? 'Select category first' 
+                      : availableSubcategories.length === 0 
+                        ? 'No subcategories' 
+                        : 'Select Subcategory'}
+                  </option>
+                  {availableSubcategories.map((sub) => (
+                    <option key={sub.id} value={sub.slug}>{sub.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </section>
 

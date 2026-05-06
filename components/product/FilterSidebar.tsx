@@ -1,12 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { useFilters } from "@/hooks/useFilters";
-import { X, ChevronDown, Check } from "lucide-react";
+import { X, ChevronDown, ChevronRight, Check } from "lucide-react";
+import { categories } from "@/lib/data/categories";
 
 export default function FilterSidebar({ isMobile = false, onClose = () => {} }: { isMobile?: boolean; onClose?: () => void }) {
   const filters = useFilters();
+  const [expandedParents, setExpandedParents] = useState<string[]>([]);
 
-  const categories = ["Sportswear", "Casual Wear", "Gloves", "Accessories"];
   const sizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
   const colors = [
     { name: "Black", hex: "#000000" },
@@ -19,12 +21,48 @@ export default function FilterSidebar({ isMobile = false, onClose = () => {} }: 
   ];
   const materials = ["Cotton", "Polyester", "Fleece", "Leather"];
 
-  const toggleCategory = (cat: string) => {
-    const slug = cat.toLowerCase().replace(/\s+/g, '-');
+  const toggleParent = (slug: string) => {
+    setExpandedParents(prev =>
+      prev.includes(slug) ? prev.filter(s => s !== slug) : [...prev, slug]
+    );
+  };
+
+  const toggleCategory = (slug: string) => {
     const next = filters.categories.includes(slug)
       ? filters.categories.filter((c) => c !== slug)
       : [...filters.categories, slug];
     filters.setCategories(next);
+  };
+
+  const isParentChecked = (parentSlug: string) => {
+    const parent = categories.find(c => c.slug === parentSlug);
+    if (!parent) return false;
+    const subSlugs = parent.subcategories.map(s => s.slug);
+    return subSlugs.every(s => filters.categories.includes(s));
+  };
+
+  const isParentIndeterminate = (parentSlug: string) => {
+    const parent = categories.find(c => c.slug === parentSlug);
+    if (!parent) return false;
+    const subSlugs = parent.subcategories.map(s => s.slug);
+    const checkedCount = subSlugs.filter(s => filters.categories.includes(s)).length;
+    return checkedCount > 0 && checkedCount < subSlugs.length;
+  };
+
+  const toggleParentAll = (parentSlug: string) => {
+    const parent = categories.find(c => c.slug === parentSlug);
+    if (!parent) return;
+    const subSlugs = parent.subcategories.map(s => s.slug);
+    const allChecked = subSlugs.every(s => filters.categories.includes(s));
+    
+    if (allChecked) {
+      // Uncheck all
+      filters.setCategories(filters.categories.filter(c => !subSlugs.includes(c)));
+    } else {
+      // Check all - add subSlugs that aren't already in categories
+      const toAdd = subSlugs.filter(s => !filters.categories.includes(s));
+      filters.setCategories([...filters.categories, ...toAdd]);
+    }
   };
 
   return (
@@ -36,26 +74,58 @@ export default function FilterSidebar({ isMobile = false, onClose = () => {} }: 
         </div>
       )}
 
-      {/* Categories */}
+      {/* Categories - Hierarchical Accordion */}
       <div className="space-y-4">
-        <h4 className="font-athletic font-bold uppercase tracking-widest text-sm border-b pb-2 flex justify-between items-center cursor-pointer">
-          Categories <ChevronDown className="h-4 w-4" />
+        <h4 className="font-athletic font-bold uppercase tracking-widest text-sm border-b pb-2 flex justify-between items-center">
+          Categories
         </h4>
-        <div className="space-y-2">
-          {categories.map((cat) => {
-            const slug = cat.toLowerCase().replace(/\s+/g, '-');
+        <div className="space-y-1">
+          {categories.map((parent) => {
+            const isExpanded = expandedParents.includes(parent.slug);
+            const allChecked = isParentChecked(parent.slug);
+            const indeterminate = isParentIndeterminate(parent.slug);
+
             return (
-              <label key={cat} className="flex items-center space-x-3 cursor-pointer group">
-                <div 
-                  className={`w-5 h-5 border-2 rounded transition-colors flex items-center justify-center ${
-                    filters.categories.includes(slug) ? 'bg-primary border-primary' : 'border-neutral-300 group-hover:border-primary'
-                  }`}
-                  onClick={() => toggleCategory(cat)}
-                >
-                  {filters.categories.includes(slug) && <Check className="h-3 w-3 text-white" />}
+              <div key={parent.id} className="">
+                {/* Parent header */}
+                <div className="flex items-center space-x-2 py-2">
+                  <button
+                    onClick={() => toggleParentAll(parent.slug)}
+                    className={`w-5 h-5 border-2 rounded transition-colors flex items-center justify-center ${
+                      allChecked ? 'bg-primary border-primary' : indeterminate ? 'bg-primary/50 border-primary' : 'border-neutral-300 hover:border-primary'
+                    }`}
+                  >
+                    {allChecked && <Check className="h-3 w-3 text-white" />}
+                    {indeterminate && <div className="w-2 h-2 bg-white rounded-sm" />}
+                  </button>
+                  <button
+                    onClick={() => toggleParent(parent.slug)}
+                    className="flex items-center flex-1 text-sm font-bold text-dark hover:text-primary transition-colors"
+                  >
+                    {parent.name}
+                    <ChevronDown className={`h-4 w-4 ml-1 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                  </button>
                 </div>
-                <span className="text-sm text-neutral-600 group-hover:text-dark">{cat}</span>
-              </label>
+
+                {/* Subcategories */}
+                {isExpanded && (
+                  <div className="pl-7 space-y-1">
+                    {parent.subcategories.map((sub) => (
+                      <label key={sub.id} className="flex items-center space-x-3 cursor-pointer group py-1">
+                        <div
+                          className={`w-4 h-4 border-2 rounded transition-colors flex items-center justify-center ${
+                            filters.categories.includes(sub.slug) ? 'bg-primary border-primary' : 'border-neutral-300 group-hover:border-primary'
+                          }`}
+                          onClick={() => toggleCategory(sub.slug)}
+                        >
+                          {filters.categories.includes(sub.slug) && <Check className="h-2.5 w-2.5 text-white" />}
+                        </div>
+                        <span className="text-sm text-neutral-600 group-hover:text-dark">{sub.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>

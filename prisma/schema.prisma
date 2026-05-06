@@ -44,16 +44,22 @@ enum DiscountType {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String?
-  email     String   @unique
-  password  String?
-  role      Role     @default(CUSTOMER)
-  company   String?
-  country   String?
-  phone     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                    String   @id @default(uuid())
+  name                  String?
+  email                 String   @unique
+  password              String?
+  role                  Role     @default(CUSTOMER)
+  company               String?
+  country               String?
+  phone                 String?
+  emailVerified         DateTime?
+  emailVerificationToken String? @unique
+  resetToken            String? @unique
+  resetTokenExpiry      DateTime?
+  refreshToken          String?
+  refreshTokenExpiry    DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
   orders          Order[]
   shippingAddress ShippingAddress[]
@@ -62,16 +68,21 @@ model User {
   exportInquiries ExportInquiry[]
 
   @@index([email])
+  @@index([resetToken])
+  @@index([emailVerificationToken])
 }
 
 model Category {
-  id          String  @id @default(uuid())
-  name        String  @unique // SPORTSWEAR, CASUAL_WEAR, GLOVES, ACCESSORIES
-  slug        String  @unique
-  description String?
-  image       String?
-
-  products Product[]
+  id            String     @id @default(uuid())
+  name          String     @unique
+  slug          String     @unique
+  description   String?
+  image         String?
+  parentId      String?
+  parent        Category?  @relation("SubCategories", fields: [parentId], references: [id])
+  subcategories Category[] @relation("SubCategories")
+  products      Product[]
+  createdAt     DateTime   @default(now())
 
   @@index([slug])
 }
