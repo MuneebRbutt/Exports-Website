@@ -227,7 +227,11 @@ const ProductForm = ({ initialData }: { initialData?: any }) => {
               <h2 className="font-bold text-white uppercase tracking-wider text-sm">Media Assets</h2>
             </div>
             
-            <ImageUploader images={images} onChange={setImages} />
+            <ImageUploader 
+              images={images} 
+              onChange={setImages} 
+              category={watch('category')}
+            />
             <div className="pt-4 border-t border-[#333]">
               <ImageUploader 
                 images={view360} 
@@ -235,6 +239,7 @@ const ProductForm = ({ initialData }: { initialData?: any }) => {
                 label="360° Images" 
                 maxImages={36} 
                 is360={true}
+                category={watch('category')}
               />
             </div>
           </section>

@@ -173,5 +173,61 @@
     "variants": [],
     "id": "wnxyjqjkr",
     "image": "blob:http://localhost:3001/2799f258-ec44-40db-9fa5-b16842a8b8a6"
+  },
+  {
+    "name": "Alpha",
+    "slug": "alpha",
+    "description": "This is demo.",
+    "category": "casual-wear",
+    "retailPrice": 0,
+    "costPrice": 10,
+    "metaTitle": "",
+    "metaDescription": "",
+    "keywords": "",
+    "status": "active",
+    "images": [],
+    "view360": [],
+    "variants": [],
+    "id": "g3yo4flj7",
+    "image": "/images/product-placeholder.jpg",
+    "price": 0
+  },
+  {
+    "name": "Chipa ",
+    "slug": "chipa-",
+    "description": "Chipa Loves laiba",
+    "category": "casual-wear",
+    "retailPrice": 0,
+    "costPrice": 20,
+    "metaTitle": "",
+    "metaDescription": "",
+    "keywords": "",
+    "status": "draft",
+    "images": [],
+    "view360": [],
+    "variants": [],
+    "id": "exazglqkc",
+    "image": "/images/product-placeholder.jpg",
+    "price": 0
+  },
+  {
+    "name": "Yaseen",
+    "slug": "yaseen",
+    "description": "This is yaseen's bag.",
+    "category": "casual-wear",
+    "retailPrice": 0,
+    "costPrice": 0,
+    "metaTitle": "",
+    "metaDescription": "",
+    "keywords": "",
+    "status": "draft",
+    "images": [
+      "https://res.cloudinary.com/dlsmrry4w/image/upload/v1778033834/meharstare/products/sportswear/wteroji9sgi54tucq2a5.webp"
+    ],
+    "view360": [],
+    "variants": [],
+    "id": "gnaisz3o3",
+    "image": "https://res.cloudinary.com/dlsmrry4w/image/upload/v1778033834/meharstare/products/sportswear/wteroji9sgi54tucq2a5.webp",
+    "price": 0
   }
 ]
