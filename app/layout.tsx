@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 };
 
 import { Toaster } from "react-hot-toast";
+import SessionProvider from "@/components/providers/SessionProvider";
 
 export default function RootLayout({
   children,
@@ -28,8 +29,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${barlow.variable} font-body antialiased`}>
-        {children}
-        <Toaster position="bottom-right" />
+        <SessionProvider>
+          {children}
+          <Toaster position="bottom-right" />
+        </SessionProvider>
       </body>
     </html>
   );

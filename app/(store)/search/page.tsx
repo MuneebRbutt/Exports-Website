@@ -1,12 +1,13 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ProductCard from "@/components/product/ProductCard";
 import { Search, PackageX } from "lucide-react";
 import Link from "next/link";
 
-export default function SearchPage() {
+function SearchResults() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q")?.toLowerCase() || "";
   const [results, setResults] = useState<any[]>([]);
@@ -78,5 +79,13 @@ export default function SearchPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense>
+      <SearchResults />
+    </Suspense>
   );
 }
