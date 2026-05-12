@@ -20,9 +20,11 @@ import { categories, getCategoryBySlug, getSubcategoryUrl } from "@/lib/data/cat
 export default function ProductCatalog({ params }: { params?: { category?: string } }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<any[]>([]); // New state for filtered products
   const [isLoading, setIsLoading] = useState(true);
   const filters = useFilters();
 
+  // Effect to fetch products initially or when category changes
   useEffect(() => {
     const fetchProducts = async () => {
       setIsLoading(true);
@@ -30,11 +32,7 @@ export default function ProductCatalog({ params }: { params?: { category?: strin
         const response = await fetch('/api/admin/products');
         const result = await response.json();
         if (result.success) {
-          const activeCategory = params?.category?.toLowerCase();
-          const filtered = activeCategory 
-            ? result.data.filter((p: any) => p.category.toLowerCase() === activeCategory)
-            : result.data;
-          setProducts(filtered);
+          setProducts(result.data); // Store all fetched products
         }
       } catch (error) {
         console.error("Failed to fetch products:", error);
@@ -43,7 +41,26 @@ export default function ProductCatalog({ params }: { params?: { category?: strin
       }
     };
     fetchProducts();
-  }, [params?.category]);
+  }, []); // Run once on mount
+
+  // Effect to apply filters whenever products or filter state changes
+  useEffect(() => {
+    let currentFiltered = [...products];
+
+    // 1. Filter by category (if active)
+    const activeCategory = params?.category?.toLowerCase();
+    if (activeCategory) {
+      currentFiltered = currentFiltered.filter((p: any) => p.category.toLowerCase() === activeCategory);
+    }
+
+    // 2. Filter by price range
+    currentFiltered = currentFiltered.filter((p: any) => {
+      const productPrice = p.basePrice || p.price; // Assuming basePrice or price exists
+      return productPrice >= filters.priceRange[0] && productPrice <= filters.priceRange[1];
+    });
+
+    setFilteredProducts(currentFiltered);
+  }, [products, params?.category, filters.priceRange]); // Re-run when products, category, or priceRange changes
 
   const activeCategory = params?.category?.toLowerCase();
   const categoryTitle = activeCategory 
@@ -160,18 +177,18 @@ export default function ProductCatalog({ params }: { params?: { category?: strin
             </div>
 
             {/* Active Filter Tags */}
-            {(filters.categories.length > 0 || filters.sizes.length > 0) && (
+            {(filters.categories.length > 0 || filters.priceRange[1] < 500) && (
               <div className="flex flex-wrap gap-2 mb-8">
                 {filters.categories.map(cat => (
                   <span key={cat} className="flex items-center space-x-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
                     {cat} <X className="h-3 w-3 ml-1 cursor-pointer" onClick={() => filters.setCategories(filters.categories.filter(c => c !== cat))} />
                   </span>
                 ))}
-                {filters.sizes.map(size => (
-                  <span key={size} className="flex items-center space-x-2 bg-dark/10 text-dark px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                    {size} <X className="h-3 w-3 ml-1 cursor-pointer" onClick={() => filters.setSizes(filters.sizes.filter(s => s !== size))} />
+                {filters.priceRange[1] < 500 && (
+                  <span className="flex items-center space-x-2 bg-dark/10 text-dark px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                    Price Max: ${filters.priceRange[1]} <X className="h-3 w-3 ml-1 cursor-pointer" onClick={() => filters.setPriceRange([0, 500])} />
                   </span>
-                ))}
+                )}
               </div>
             )}
 
@@ -182,7 +199,7 @@ export default function ProductCatalog({ params }: { params?: { category?: strin
               'grid-cols-1'
             }`}>
               <AnimatePresence mode="popLayout">
-                {products.map((product, idx) => (
+                {filteredProducts.map((product, idx) => (
                   <motion.div
                     key={product.id}
                     layout

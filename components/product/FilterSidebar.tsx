@@ -131,52 +131,9 @@ export default function FilterSidebar({ isMobile = false, onClose = () => {} }: 
         </div>
       </div>
 
-      {/* Sizes */}
-      <div className="space-y-4">
-        <h4 className="font-athletic font-bold uppercase tracking-widest text-sm border-b pb-2">Size</h4>
-        <div className="grid grid-cols-4 gap-2">
-          {sizes.map((size) => (
-            <button
-              key={size}
-              onClick={() => {
-                const next = filters.sizes.includes(size)
-                  ? filters.sizes.filter((s) => s !== size)
-                  : [...filters.sizes, size];
-                filters.setSizes(next);
-              }}
-              className={`py-2 text-xs font-bold border transition-all rounded ${
-                filters.sizes.includes(size) ? 'bg-dark text-white border-dark' : 'border-neutral-200 text-neutral-500 hover:border-dark'
-              }`}
-            >
-              {size}
-            </button>
-          ))}
-        </div>
-      </div>
 
-      {/* Colors */}
-      <div className="space-y-4">
-        <h4 className="font-athletic font-bold uppercase tracking-widest text-sm border-b pb-2">Color</h4>
-        <div className="flex flex-wrap gap-3">
-          {colors.map((color) => (
-            <button
-              key={color.name}
-              onClick={() => {
-                const next = filters.colors.includes(color.name)
-                  ? filters.colors.filter((c) => c !== color.name)
-                  : [...filters.colors, color.name];
-                filters.setColors(next);
-              }}
-              className={`w-8 h-8 rounded-full border-2 p-0.5 transition-all ${
-                filters.colors.includes(color.name) ? 'border-primary' : 'border-transparent'
-              }`}
-              title={color.name}
-            >
-              <div className="w-full h-full rounded-full" style={{ backgroundColor: color.hex }} />
-            </button>
-          ))}
-        </div>
-      </div>
+
+
 
       {/* Price Range */}
       <div className="space-y-4">
@@ -203,27 +160,7 @@ export default function FilterSidebar({ isMobile = false, onClose = () => {} }: 
         </div>
       </div>
 
-      {/* Product Type */}
-      <div className="space-y-4">
-        <h4 className="font-athletic font-bold uppercase tracking-widest text-sm border-b pb-2">Business Type</h4>
-        <div className="flex flex-col space-y-2">
-          {['ALL', 'RETAIL', 'EXPORT'].map((type) => (
-            <label key={type} className="flex items-center space-x-3 cursor-pointer group">
-              <div 
-                className={`w-5 h-5 border-2 rounded-full transition-colors flex items-center justify-center ${
-                  filters.productType === type ? 'bg-primary border-primary' : 'border-neutral-300 group-hover:border-primary'
-                }`}
-                onClick={() => filters.setProductType(type as any)}
-              >
-                {filters.productType === type && <div className="w-2 h-2 bg-white rounded-full" />}
-              </div>
-              <span className="text-sm text-neutral-600 group-hover:text-dark">
-                {type === 'ALL' ? 'All Products' : type === 'RETAIL' ? 'Retail (B2C)' : 'Export / Bulk (B2B)'}
-              </span>
-            </label>
-          ))}
-        </div>
-      </div>
+
 
       {/* Actions */}
       <div className="pt-6 space-y-3">

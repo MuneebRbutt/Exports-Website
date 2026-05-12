@@ -48,9 +48,9 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-athletic uppercase tracking-widest mb-6">Global Contact</h4>
             <p className="text-sm mb-4">Sialkot Industrial Zone, Pakistan</p>
-            <p className="text-sm mb-6 font-bold text-white">+92 (300) 123 4567</p>
+            <p className="text-sm mb-6 font-bold text-white">+92 321 6146452</p>
             <a 
-              href="https://wa.me/923001234567" 
+              href="https://wa.me/923216146452" 
               className="inline-flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full transition-colors"
             >
               <WhatsApp className="h-5 w-5" />

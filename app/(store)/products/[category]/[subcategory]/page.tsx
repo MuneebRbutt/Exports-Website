@@ -32,19 +32,12 @@ export default function SubcategoryPage({ params }: { params: { category: string
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('/api/admin/products');
+        const response = await fetch(
+          `/api/admin/products?category=${params.category}&subcategory=${params.subcategory}`
+        );
         const result = await response.json();
         if (result.success) {
-          // Filter by subcategory (currently using category field as proxy since data may not have subcategory yet)
-          const filtered = result.data.filter((p: any) => {
-            const catMatch = p.category?.toLowerCase() === params.category.toLowerCase();
-            // If product has subcategory, check it; otherwise show all in parent category
-            if (p.subcategory) {
-              return catMatch && p.subcategory?.toLowerCase() === params.subcategory.toLowerCase();
-            }
-            return catMatch;
-          });
-          setProducts(filtered);
+          setProducts(result.data);
         }
       } catch (error) {
         console.error("Failed to fetch products:", error);
@@ -54,6 +47,19 @@ export default function SubcategoryPage({ params }: { params: { category: string
     };
     fetchProducts();
   }, [params.category, params.subcategory]);
+
+  // Effect to apply price range filter
+  useEffect(() => {
+    let currentFiltered = [...products];
+
+    // 1. Filter by price range
+    currentFiltered = currentFiltered.filter((p: any) => {
+      const productPrice = p.basePrice || p.price; // Assuming basePrice or price exists
+      return productPrice >= filters.priceRange[0] && productPrice <= filters.priceRange[1];
+    });
+
+    setFilteredProducts(currentFiltered);
+  }, [products, filters.priceRange]);
 
   const categoryTitle = subcategory?.name?.toUpperCase() || params.subcategory.replace(/-/g, ' ').toUpperCase();
   const parentTitle = category?.name || params.category.replace(/-/g, ' ');

@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
-import { getAllProducts, saveProduct, deleteProduct } from '@/lib/db/products';
+import { getProducts, saveProduct, deleteProduct } from '@/lib/db/products';
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const products = await getAllProducts();
+    const { searchParams } = new URL(req.url);
+    const categorySlug = searchParams.get('category') || undefined;
+    const subcategorySlug = searchParams.get('subcategory') || undefined;
+
+    const products = await getProducts(categorySlug, subcategorySlug);
     return NextResponse.json({ success: true, data: products });
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });

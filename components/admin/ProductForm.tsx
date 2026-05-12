@@ -12,12 +12,12 @@ import { useRouter } from 'next/navigation';
 import { categories, getCategoryBySlug } from '@/lib/data/categories';
 
 const productSchema = z.object({
+  id: z.string().optional(), // Added for updates
   name: z.string().min(3, 'Name is too short'),
   slug: z.string().min(3, 'Slug is required'),
   description: z.string().min(10, 'Description is too short'),
   category: z.string().min(1, 'Category is required'),
   subcategory: z.string().optional(),
-  retailPrice: z.number().min(0),
   costPrice: z.number().min(0),
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
@@ -38,7 +38,6 @@ const ProductForm = ({ initialData }: { initialData?: any }) => {
     resolver: zodResolver(productSchema),
     defaultValues: initialData || {
       status: 'draft',
-      retailPrice: 0,
       costPrice: 0,
     }
   });
@@ -52,10 +51,14 @@ const ProductForm = ({ initialData }: { initialData?: any }) => {
     const loadingToast = toast.loading('Publishing product...');
     
     try {
+      const payload = initialData?.id
+        ? { ...data, id: initialData.id, images, view360, variants } 
+        : { ...data, images, view360, variants };
+
       const response = await fetch('/api/admin/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, images, view360, variants }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) throw new Error('Failed to publish product');
@@ -201,19 +204,9 @@ const ProductForm = ({ initialData }: { initialData?: any }) => {
               <h2 className="font-bold text-white uppercase tracking-wider text-sm">Pricing & Cost</h2>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase">Retail Price ($)</label>
-                <input 
-                  type="number"
-                  step="0.01"
-                  {...register('retailPrice', { valueAsNumber: true })}
-                  className={`w-full bg-[#0F0F0F] border ${errors.retailPrice ? 'border-red-500' : 'border-[#333]'} rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-[#E84118] transition-colors`}
-                />
-                {errors.retailPrice && <p className="text-red-500 text-[10px]">{errors.retailPrice.message}</p>}
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase">Cost Price ($)</label>
+                <label className="text-xs font-bold text-gray-500 uppercase">Price ($)</label>
                 <input 
                   type="number"
                   step="0.01"

@@ -61,43 +61,23 @@ export async function getProductBySlug(slug: string) {
   }
 }
 
-// Fetch products by category
-export async function getProductsByCategory(category: string) {
+export async function getProducts(categorySlug?: string, subcategorySlug?: string) {
   try {
-    const products = await prisma.product.findMany({
-      where: {
+    const where: any = {};
+
+    if (subcategorySlug) {
+      where.category = { slug: subcategorySlug };
+    } else if (categorySlug) {
+      where.category = {
         OR: [
-          { category: { slug: category } },
-          { category: { parent: { slug: category } } }
+          { slug: categorySlug },
+          { parent: { slug: categorySlug } }
         ]
-      },
-      include: {
-        category: {
-          include: {
-            parent: true
-          }
-        },
-        variants: true
-      }
-    });
+      };
+    }
 
-    return products.map(p => ({
-      ...p,
-      category: p.category.parent ? p.category.parent.slug : p.category.slug,
-      subcategory: p.category.parent ? p.category.slug : null,
-      image: p.images?.[0] || "/images/product-placeholder.jpg",
-      price: p.basePrice
-    }));
-  } catch (error) {
-    console.error("Error fetching products by category:", error);
-    return [];
-  }
-}
-
-// Fetch all products
-export async function getAllProducts() {
-  try {
     const products = await prisma.product.findMany({
+      where,
       include: {
         category: {
           include: {
@@ -116,7 +96,7 @@ export async function getAllProducts() {
       price: p.basePrice
     }));
   } catch (error) {
-    console.error("Error fetching all products:", error);
+    console.error("Error fetching products:", error);
     return [];
   }
 }
@@ -126,7 +106,7 @@ export async function saveProduct(productData: any) {
   try {
     const { 
       id, name, slug, description, category, subcategory, 
-      retailPrice, images, variants 
+      costPrice, images, variants 
     } = productData;
 
     // Find category ID
@@ -141,7 +121,7 @@ export async function saveProduct(productData: any) {
       name,
       slug,
       description,
-      basePrice: Number(retailPrice),
+      basePrice: Number(costPrice),
       categoryId: categoryRecord.id,
       images: images || [],
       isActive: productData.status === 'active',
@@ -182,7 +162,7 @@ export async function saveProduct(productData: any) {
             material: v.material || 'Standard',
             sku: v.sku || `SKU-${Math.random().toString(36).substr(2, 9)}`,
             stock: Number(v.stock),
-            price: Number(v.price) || Number(retailPrice),
+            price: Number(v.price) || Number(costPrice),
           }
         });
       }

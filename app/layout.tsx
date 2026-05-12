@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 
 import { Toaster } from "react-hot-toast";
 import SessionProvider from "@/components/providers/SessionProvider";
+import WhatsAppButton from "@/components/common/WhatsAppButton";
 
 export default function RootLayout({
   children,
@@ -33,6 +34,7 @@ export default function RootLayout({
           {children}
           <Toaster position="bottom-right" />
         </SessionProvider>
+        <WhatsAppButton />
       </body>
     </html>
   );
