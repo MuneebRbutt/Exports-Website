@@ -1,73 +1,180 @@
-import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { getServerSession } from "next-auth/next";
 
-const prisma = new PrismaClient();
+export async function GET() {
+  const session = await getServerSession();
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { items, shippingData, paymentMethod, totalAmount, orderType, currency } = body;
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
 
-    if (!items || items.length === 0) {
-      return NextResponse.json({ error: "No items in order" }, { status: 400 });
+    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+    const orders = await prisma.order.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      include: {
+        items: {
+          include: {
+            product: true,
+            variant: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json(orders);
+  } catch (error) {
+    console.error("Orders GET error:", error);
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+  }
+}
+
+export async function POST(req: NextRequest) {
+  const session = await getServerSession();
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { shippingAddress, items } = await req.json();
+
+    if (!shippingAddress) {
+      return NextResponse.json({ error: "Shipping address is required" }, { status: 400 });
     }
 
-    // In a real application, you would:
-    // 1. Verify user session/authentication (we use a generic ID or allow guest checkout)
-    // 2. Validate prices against database to prevent tampering
-    // 3. Create user if guest, or link to existing
-    
-    // For this MVP, we create a dummy user if not authenticated, or just use a generic flow.
-    // Let's create a generic user for the order since we don't have auth context here.
-    let user = await prisma.user.findFirst({ where: { email: shippingData.email } });
+    if (!items || items.length === 0) {
+      return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
     if (!user) {
-      user = await prisma.user.create({
-        data: {
-          email: shippingData.email,
-          name: shippingData.fullName,
-          role: "CUSTOMER",
-          phone: `${shippingData.phoneCode}${shippingData.phone}`,
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Validate stock and calculate total
+    let totalAmount = 0;
+    const itemsToProcess = [];
+
+    for (const item of items) {
+      console.log("Processing item:", item.name, "ID:", item.id, "VariantID:", item.variantId, "ProductID:", item.productId);
+
+      // 1. Try to find by explicit ID or variantId in ProductVariant table
+      let variant = await prisma.productVariant.findUnique({
+        where: { id: item.variantId || item.id },
+        include: { product: true }
+      });
+
+      // 2. Fallback: Try to find by Product ID + Size + Color
+      if (!variant) {
+        const pId = item.productId || (item.id.length > 20 ? item.id : null); // If id looks like a UUID, it might be productId
+        
+        if (pId) {
+          variant = await prisma.productVariant.findFirst({
+            where: {
+              productId: pId,
+              size: item.size || "L",
+              color: item.color || "Black"
+            },
+            include: { product: true }
+          });
         }
+      }
+
+      // 3. Last Resort: Try to find by Product Name + Size + Color
+      if (!variant) {
+        variant = await prisma.productVariant.findFirst({
+          where: {
+            product: {
+              name: {
+                contains: item.name,
+                mode: 'insensitive'
+              }
+            },
+            size: item.size || "L",
+            color: item.color || "Black"
+          },
+          include: { product: true }
+        });
+      }
+
+      if (!variant) {
+        return NextResponse.json({ 
+          error: `Product variant not found: ${item.name} (${item.size || 'L'}/${item.color || 'Black'})` 
+        }, { status: 404 });
+      }
+
+      if (variant.stock < item.quantity) {
+        return NextResponse.json(
+          { error: `Insufficient stock for ${variant.product.name}` },
+          { status: 400 }
+        );
+      }
+
+      totalAmount += variant.price * item.quantity;
+      itemsToProcess.push({
+        productId: variant.productId,
+        variantId: variant.id,
+        quantity: item.quantity,
+        price: variant.price
       });
     }
 
-    // Create Order and nested items
-    const order = await prisma.order.create({
-      data: {
-        userId: user.id,
-        totalAmount,
-        currency: currency || "USD",
-        orderType: orderType || "B2C",
-        status: "PENDING",
-        items: {
-          create: items.map((item: { productId?: string; variantId?: string; quantity: number; price: number }) => ({
-            productId: item.productId || "dummy-product-id", // Ensure these map to real products in prod
-            variantId: item.variantId || "dummy-variant-id", // Ensure these map to real variants in prod
+    // Generate order number: MHS-[YEAR]-[5 digits]
+    const year = new Date().getFullYear();
+    const randomDigits = Math.floor(10000 + Math.random() * 90000);
+    const orderNumber = `MHS-${year}-${randomDigits}`;
+
+    // Create order within a transaction
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Create order
+      const order = await tx.order.create({
+        data: {
+          orderNumber,
+          userId: user.id,
+          totalAmount,
+          shippingAddress,
+          status: "PENDING",
+          paymentMethod: "CASH_ON_DELIVERY",
+          paymentStatus: "PENDING",
+        },
+      });
+
+      // 2. Create order items and deduct stock
+      for (const item of itemsToProcess) {
+        await tx.orderItem.create({
+          data: {
+            orderId: order.id,
+            productId: item.productId,
+            variantId: item.variantId,
             quantity: item.quantity,
             price: item.price,
-          }))
-        },
-        payment: {
-          create: {
-            provider: paymentMethod === "card" ? "STRIPE" : "PAYPAL",
-            status: "PENDING",
-            amount: totalAmount,
-            currency: currency || "USD",
-          }
-        }
-      },
-      include: {
-        items: true,
-        payment: true
+          },
+        });
+
+        await tx.productVariant.update({
+          where: { id: item.variantId },
+          data: { stock: { decrement: item.quantity } },
+        });
       }
+
+      return order;
     });
 
-    return NextResponse.json({ success: true, orderId: order.id, order });
-  } catch (error: unknown) {
-    console.error("Order creation error:", error);
-    return NextResponse.json(
-      { error: "Failed to create order", details: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      orderId: result.id,
+      orderNumber: result.orderNumber,
+    });
+  } catch (error) {
+    console.error("Order POST error:", error);
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }

@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     // Upload to Cloudinary
-    const result = await uploadImage(buffer, folder);
+    const result = await uploadImage(buffer, folder, file.type);
 
     // Return success response
     return NextResponse.json(

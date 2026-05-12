@@ -2,10 +2,27 @@
 
 import { useSession, signOut } from "next-auth/react"
 import Link from "next/link"
-import { LogOut, ShoppingBag, List, MessageSquare } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
+import { LogOut, ShoppingBag, List, MessageSquare, LayoutDashboard } from "lucide-react"
 
 export default function DashboardPage() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (status === "authenticated" && session?.user?.role === "ADMIN") {
+      router.push("/admin")
+    }
+  }, [session, status, router])
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-[#1A1A1A] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#E84118]"></div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[#1A1A1A] text-white p-8">
@@ -14,13 +31,24 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-bold">
             Welcome, {session?.user?.name || "User"}!
           </h1>
-          <button
-            onClick={() => signOut({ callbackUrl: "/auth/login" })}
-            className="flex items-center gap-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg transition-all"
-          >
-            <LogOut size={18} />
-            Logout
-          </button>
+          <div className="flex gap-4">
+            {session?.user?.role === "ADMIN" && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-2 bg-[#E84118]/10 text-[#E84118] hover:bg-[#E84118] hover:text-white px-4 py-2 rounded-lg transition-all border border-[#E84118]/20"
+              >
+                <LayoutDashboard size={18} />
+                Admin Panel
+              </Link>
+            )}
+            <button
+              onClick={() => signOut({ callbackUrl: "/auth/login" })}
+              className="flex items-center gap-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg transition-all"
+            >
+              <LogOut size={18} />
+              Logout
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

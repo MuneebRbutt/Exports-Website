@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAllProducts, saveProduct } from '@/lib/db/products';
+import { getAllProducts, saveProduct, deleteProduct } from '@/lib/db/products';
 
 export async function GET() {
   try {
@@ -14,14 +14,12 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     
-    // Persist to JSON database
+    // Persist to Prisma database
     const success = await saveProduct(body);
 
     if (!success) {
       throw new Error('Failed to save product to storage');
     }
-    
-    console.log('Product saved successfully:', body.slug);
     
     return NextResponse.json({ 
       success: true,
@@ -31,5 +29,27 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('API Error:', error);
     return NextResponse.json({ error: "Failed to publish product" }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: "Product ID is required" }, { status: 400 });
+    }
+
+    const success = await deleteProduct(id);
+
+    if (!success) {
+      throw new Error('Failed to delete product');
+    }
+
+    return NextResponse.json({ success: true, message: "Product deleted successfully" });
+  } catch (error) {
+    console.error('API Error:', error);
+    return NextResponse.json({ error: "Failed to delete product" }, { status: 500 });
   }
 }

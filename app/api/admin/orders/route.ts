@@ -1,14 +1,34 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { getServerSession } from "next-auth/next";
 
 export async function GET() {
-  return NextResponse.json({ message: "Fetch orders success" });
-}
+  const session = await getServerSession();
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-export async function PATCH(req: Request) {
+  // Verify admin
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email }
+  });
+
+  if (user?.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   try {
-    const body = await req.json();
-    return NextResponse.json({ message: "Order updated success", data: body });
+    const orders = await prisma.order.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: true,
+        items: true
+      }
+    });
+
+    return NextResponse.json(orders);
   } catch (error) {
-    return NextResponse.json({ error: "Failed to update order" }, { status: 500 });
+    console.error("Admin Orders GET error:", error);
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }

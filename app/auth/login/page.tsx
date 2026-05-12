@@ -36,7 +36,12 @@ export default function LoginPage() {
       if (res?.error) {
         setError("Invalid email or password")
       } else {
-        router.push(callbackUrl)
+        // Fetch session to check role
+        const sessionRes = await fetch("/api/auth/session")
+        const session = await sessionRes.json()
+        
+        const targetUrl = session?.user?.role === "ADMIN" ? "/admin" : callbackUrl
+        router.push(targetUrl)
         router.refresh()
       }
     } catch (err: any) {

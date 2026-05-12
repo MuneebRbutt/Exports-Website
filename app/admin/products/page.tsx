@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, Search, Filter, MoreHorizontal, Download } from 'lucide-react';
+import { Plus, Search, Filter, MoreHorizontal, Download, Edit, Trash2 } from 'lucide-react';
 import DataTable from '@/components/admin/DataTable';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 const ProductsPage = () => {
   const router = useRouter();
@@ -57,6 +58,25 @@ const ProductsPage = () => {
     setFilteredProducts(filtered);
   }, [search, categoryFilter, dbProducts]);
 
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+
+    const loadingToast = toast.loading('Deleting product...');
+    try {
+      const response = await fetch(`/api/admin/products?id=${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to delete product');
+
+      toast.success('Product deleted successfully!', { id: loadingToast });
+      setDbProducts(prev => prev.filter(p => p.id !== id));
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to delete product', { id: loadingToast });
+    }
+  };
+
   const columns = [
     { 
       header: 'Product', 
@@ -97,6 +117,24 @@ const ProductsPage = () => {
         </span>
       )
     },
+    {
+      header: 'Actions',
+      accessor: (item: any) => (
+        <div className="flex items-center gap-2">
+          <Link href={`/admin/products/${item.slug}`}>
+            <button className="p-2 hover:bg-[#1A1A1A] rounded-lg text-gray-400 hover:text-white transition-colors">
+              <Edit size={16} />
+            </button>
+          </Link>
+          <button 
+            onClick={() => handleDelete(item.id)}
+            className="p-2 hover:bg-red-500/10 rounded-lg text-gray-400 hover:text-red-500 transition-colors"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+      )
+    }
   ];
 
   return (

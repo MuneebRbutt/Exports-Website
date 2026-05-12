@@ -14,16 +14,10 @@ export { cloudinary };
 // Helper function to upload a single image
 export async function uploadImage(
   file: File | Buffer,
-  folder: string
+  folder: string,
+  mimeType: string = 'image/jpeg'
 ): Promise<{ url: string; publicId: string; width: number; height: number }> {
   try {
-    console.log('Uploading to folder:', folder);
-    console.log('Cloudinary config check:', {
-      cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ? 'set' : 'missing',
-      apiKey: process.env.CLOUDINARY_API_KEY ? 'set' : 'missing',
-      apiSecret: process.env.CLOUDINARY_API_SECRET ? 'set' : 'missing',
-    });
-    
     const uploadOptions: any = {
       folder: folder,
       resource_type: 'image',
@@ -35,7 +29,6 @@ export async function uploadImage(
     
     // Convert to data URI for upload
     if (file instanceof File) {
-      // It's a File object
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       result = await cloudinary.uploader.upload(
@@ -43,9 +36,8 @@ export async function uploadImage(
         uploadOptions
       );
     } else if (Buffer.isBuffer(file)) {
-      // It's a Buffer
       result = await cloudinary.uploader.upload(
-        `data:image/jpeg;base64,${file.toString('base64')}`,
+        `data:${mimeType};base64,${file.toString('base64')}`,
         uploadOptions
       );
     } else {

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useCart } from "@/hooks/useCart";
 import CouponInput from "./CouponInput";
 import Link from "next/link";
-import { Truck, Zap, Package2, ShieldCheck, Lock } from "lucide-react";
+import { Truck, Zap, Package2, ShieldCheck, Lock, Banknote } from "lucide-react";
 
 type ShippingMethod = {
   id: string;
@@ -26,7 +26,6 @@ interface CartSummaryProps {
 export default function CartSummary({ discount = 0 }: CartSummaryProps) {
   const { getSubtotal } = useCart();
   const [selectedShipping, setSelectedShipping] = useState("standard");
-  const [internalDiscount, setInternalDiscount] = useState(0);
 
   const subtotal = getSubtotal();
 
@@ -38,9 +37,7 @@ export default function CartSummary({ discount = 0 }: CartSummaryProps) {
   };
 
   const shippingCost = getShippingCost();
-  const selectedMethod = shippingMethods.find((m) => m.id === selectedShipping);
-  const totalDiscount = discount + internalDiscount;
-  const total = subtotal - totalDiscount + shippingCost;
+  const total = subtotal - discount + shippingCost;
 
   return (
     <div className="bg-neutral-50 p-8 rounded-3xl border border-neutral-100 sticky top-24 space-y-6">
@@ -91,6 +88,22 @@ export default function CartSummary({ discount = 0 }: CartSummaryProps) {
         </div>
       </div>
 
+      {/* Payment Method Badge */}
+      <div className="space-y-3">
+        <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">
+          Payment Method
+        </label>
+        <div className="bg-white p-4 rounded-xl border border-neutral-100 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-green-500/10 p-2 rounded-lg text-green-600">
+              <Banknote size={16} />
+            </div>
+            <span className="text-xs font-bold uppercase text-dark">Cash on Delivery</span>
+          </div>
+          <ShieldCheck size={16} className="text-green-500" />
+        </div>
+      </div>
+
       {/* Price Breakdown */}
       <div className="space-y-3 pt-2">
         <div className="flex justify-between text-sm">
@@ -100,38 +113,34 @@ export default function CartSummary({ discount = 0 }: CartSummaryProps) {
         <div className="flex justify-between text-sm">
           <span className="text-neutral-500">Shipping</span>
           <span className="font-bold text-dark">
-            {shippingCost === 0
-              ? "FREE"
-              : `$${shippingCost.toFixed(2)}`}
+            {shippingCost === 0 ? "FREE" : `$${shippingCost.toFixed(2)}`}
           </span>
         </div>
-        {totalDiscount > 0 && (
+        {discount > 0 && (
           <div className="flex justify-between text-sm text-green-600">
             <span>Discount</span>
-            <span className="font-bold">-${totalDiscount.toFixed(2)}</span>
+            <span className="font-bold">-${discount.toFixed(2)}</span>
           </div>
         )}
-        <div className="pt-4 border-t border-neutral-200 flex justify-between items-end">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Total</span>
-            <span className="text-3xl font-athletic font-bold italic text-primary leading-none">
-              ${total.toFixed(2)}
-            </span>
+        <div className="pt-4 border-t border-neutral-200">
+          <div className="flex justify-between items-end">
+            <span className="text-base font-bold uppercase text-dark">Total</span>
+            <div className="text-right">
+              <span className="text-2xl font-athletic font-bold italic text-primary">
+                ${total.toFixed(2)}
+              </span>
+            </div>
           </div>
-          <span className="text-[10px] text-neutral-400 font-medium">Prices in USD</span>
         </div>
       </div>
-
-      {/* Coupon */}
-      <CouponInput onDiscount={setInternalDiscount} subtotal={subtotal} />
 
       {/* CTA */}
       <div className="space-y-3">
         <Link
           href="/checkout"
-          className="block text-center w-full bg-dark text-white py-5 rounded-2xl font-athletic font-bold uppercase tracking-widest text-lg hover:bg-primary transition-all shadow-xl shadow-dark/10"
+          className="block w-full bg-primary text-white text-center py-5 rounded-2xl font-athletic font-bold uppercase tracking-widest text-xl hover:bg-[#d63a15] transition-all shadow-xl shadow-primary/20"
         >
-          Checkout Now
+          Proceed to Checkout
         </Link>
         <div className="flex items-center justify-center space-x-3 pt-1">
           <ShieldCheck className="h-4 w-4 text-green-500" />

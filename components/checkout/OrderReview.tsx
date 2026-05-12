@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CreditCard, Globe, ShieldCheck } from "lucide-react";
+import { Truck, ShieldCheck } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { useState } from "react";
 import { ShippingFormData } from "./ShippingForm";
@@ -39,11 +39,9 @@ export default function OrderReview({
         <div className="py-6">
           <h5 className="font-bold uppercase text-[10px] tracking-widest text-neutral-400 mb-4">Payment Method</h5>
           <div className="flex items-center space-x-3">
-            {paymentMethod === "card" && <CreditCard className="h-5 w-5 text-dark" />}
-            {paymentMethod === "paypal" && <Globe className="h-5 w-5 text-dark" />}
-            {paymentMethod === "bank" && <ShieldCheck className="h-5 w-5 text-dark" />}
+            <Truck className="h-5 w-5 text-dark" />
             <span className="text-sm text-dark font-medium uppercase tracking-widest">
-              {paymentMethod === "card" ? "Credit/Debit Card" : paymentMethod === "paypal" ? "PayPal" : "Bank Transfer"}
+              {paymentMethod === "cod" ? "Cash on Delivery" : "Cash on Delivery"}
             </span>
           </div>
         </div>

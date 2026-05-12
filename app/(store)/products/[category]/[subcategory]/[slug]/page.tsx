@@ -81,8 +81,20 @@ export default function ProductDetailPage({
   const price = Number(product.price) || Number(product.retailPrice) || 0;
 
   const handleAddToCart = () => {
+    // Find the correct variant based on selected size and color
+    const selectedVariant = product.variants?.find(
+      (v: any) => v.size === selectedSize && v.color === selectedColor
+    );
+
+    if (product.variants && !selectedVariant) {
+      toast.error("Selected combination is not available");
+      return;
+    }
+
     addItem({
-      id: product.id.toString(),
+      id: selectedVariant ? selectedVariant.id : product.id.toString(),
+      variantId: selectedVariant ? selectedVariant.id : undefined,
+      productId: product.id,
       name: product.name,
       price: price,
       image: product.image || product.img || "/images/product-placeholder.jpg",

@@ -32,65 +32,178 @@ export const mockProducts = readProductsFromJSON();
 
 // Fetch single product by slug
 export async function getProductBySlug(slug: string) {
-  const products = readProductsFromJSON();
-  const product = products.find((p: any) => p.slug === slug);
-  if (product) return product;
-
   try {
-    return await prisma.product.findUnique({
-      where: { slug: slug }
+    const product = await prisma.product.findUnique({
+      where: { slug: slug },
+      include: {
+        category: {
+          include: {
+            parent: true
+          }
+        },
+        variants: true
+      }
     });
+
+    if (!product) return null;
+
+    // Transform for frontend
+    return {
+      ...product,
+      category: product.category.parent ? product.category.parent.slug : product.category.slug,
+      subcategory: product.category.parent ? product.category.slug : null,
+      image: product.images?.[0] || "/images/product-placeholder.jpg",
+      price: product.basePrice
+    };
   } catch (error) {
+    console.error("Error fetching product by slug:", error);
     return null;
   }
 }
 
 // Fetch products by category
 export async function getProductsByCategory(category: string) {
-  const products = readProductsFromJSON();
-  const filtered = products.filter((p: any) => p.category.toLowerCase() === category.toLowerCase());
-  if (filtered.length > 0) return filtered;
-
   try {
-    return await prisma.product.findMany({
-      where: { category: { slug: category } }
+    const products = await prisma.product.findMany({
+      where: {
+        OR: [
+          { category: { slug: category } },
+          { category: { parent: { slug: category } } }
+        ]
+      },
+      include: {
+        category: {
+          include: {
+            parent: true
+          }
+        },
+        variants: true
+      }
     });
+
+    return products.map(p => ({
+      ...p,
+      category: p.category.parent ? p.category.parent.slug : p.category.slug,
+      subcategory: p.category.parent ? p.category.slug : null,
+      image: p.images?.[0] || "/images/product-placeholder.jpg",
+      price: p.basePrice
+    }));
   } catch (error) {
+    console.error("Error fetching products by category:", error);
     return [];
   }
 }
 
 // Fetch all products
 export async function getAllProducts() {
-  const products = readProductsFromJSON();
-  if (products.length > 0) return products;
-
   try {
-    return await prisma.product.findMany();
+    const products = await prisma.product.findMany({
+      include: {
+        category: {
+          include: {
+            parent: true
+          }
+        },
+        variants: true
+      }
+    });
+
+    return products.map(p => ({
+      ...p,
+      category: p.category.parent ? p.category.parent.slug : p.category.slug,
+      subcategory: p.category.parent ? p.category.slug : null,
+      image: p.images?.[0] || "/images/product-placeholder.jpg",
+      price: p.basePrice
+    }));
   } catch (error) {
+    console.error("Error fetching all products:", error);
     return [];
   }
 }
 
 // Add or update a product (persistence)
 export async function saveProduct(productData: any) {
-  const products = readProductsFromJSON();
-  const index = products.findIndex((p: any) => p.slug === productData.slug || p.id === productData.id);
+  try {
+    const { 
+      id, name, slug, description, category, subcategory, 
+      retailPrice, images, variants 
+    } = productData;
 
-  const formattedProduct = {
-    ...productData,
-    id: productData.id || (index !== -1 ? products[index].id : Math.random().toString(36).substr(2, 9)),
-    image: productData.images?.[0] || productData.image || "/images/product-placeholder.jpg",
-    price: Number(productData.retailPrice) || Number(productData.price) || 0
-  };
+    // Find category ID
+    const catSlug = subcategory || category;
+    const categoryRecord = await prisma.category.findUnique({
+      where: { slug: catSlug }
+    });
 
-  if (index !== -1) {
-    // Update
-    products[index] = { ...products[index], ...formattedProduct };
-  } else {
-    // Add
-    products.push(formattedProduct);
+    if (!categoryRecord) throw new Error(`Category ${catSlug} not found`);
+
+    const data = {
+      name,
+      slug,
+      description,
+      basePrice: Number(retailPrice),
+      categoryId: categoryRecord.id,
+      images: images || [],
+      isActive: productData.status === 'active',
+    };
+
+    let savedProduct;
+    if (id && id.length > 20) { // Check if it's a UUID
+      savedProduct = await prisma.product.update({
+        where: { id },
+        data: {
+          ...data,
+          updatedAt: new Date()
+        }
+      });
+    } else {
+      savedProduct = await prisma.product.create({
+        data: {
+          ...data,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      });
+    }
+
+    // Handle variants if provided
+    if (variants && variants.length > 0) {
+      // For simplicity, we'll delete old variants and create new ones
+      await prisma.productVariant.deleteMany({
+        where: { productId: savedProduct.id }
+      });
+
+      for (const v of variants) {
+        await prisma.productVariant.create({
+          data: {
+            productId: savedProduct.id,
+            size: v.size,
+            color: v.color,
+            material: v.material || 'Standard',
+            sku: v.sku || `SKU-${Math.random().toString(36).substr(2, 9)}`,
+            stock: Number(v.stock),
+            price: Number(v.price) || Number(retailPrice),
+          }
+        });
+      }
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error saving product:", error);
+    return false;
   }
+}
 
-  return writeProductsToJSON(products);
+// Delete product
+export async function deleteProduct(id: string) {
+  try {
+    await prisma.product.delete({
+      where: { id }
+    });
+    return true;
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    return false;
+  }
 }

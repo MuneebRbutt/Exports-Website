@@ -57,13 +57,19 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
             onClick={(e) => {
               e.preventDefault();
               const price = Number(product.price) || Number(product.retailPrice) || 0;
+              
+              // Try to find a default variant (L/Black) or just the first one
+              const defaultVariant = product.variants?.find((v: any) => v.size === "L" && v.color === "Black") || product.variants?.[0];
+              
               addItem({
-                id: product.id.toString(),
+                id: defaultVariant ? defaultVariant.id : product.id.toString(),
+                variantId: defaultVariant ? defaultVariant.id : undefined,
+                productId: product.id,
                 name: product.name,
                 price: price,
                 image: product.image || product.img || "/images/product-placeholder.jpg",
-                size: "L", // Default mock size
-                color: "Black", // Default mock color
+                size: defaultVariant ? defaultVariant.size : "L",
+                color: defaultVariant ? defaultVariant.color : "Black",
                 quantity: 1
               });
               toast.success(`${product.name} added to cart`);
