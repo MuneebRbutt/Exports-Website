@@ -43,7 +43,7 @@ const AdminProductsClient = ({ initialProducts }: { initialProducts: any[] }) =>
 
     const loadingToast = toast.loading('Deleting product...');
     try {
-      const response = await fetch(`/api/admin/products?id=${id}`, {
+      const response = await fetch(`/api/admin/products/${id}`, {
         method: 'DELETE',
       });
 
@@ -100,7 +100,7 @@ const AdminProductsClient = ({ initialProducts }: { initialProducts: any[] }) =>
       header: 'Actions',
       accessor: (item: any) => (
         <div className="flex items-center gap-2">
-          <Link href={`/admin/products/${item.id}`}>
+          <Link href={`/admin/products/${item.slug}`}>
             <button className="p-2 hover:bg-[#1A1A1A] rounded-lg text-gray-400 hover:text-white transition-colors">
               <Edit size={16} />
             </button>

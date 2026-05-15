@@ -106,7 +106,7 @@ export async function saveProduct(productData: any) {
   try {
     const { 
       id, name, slug, description, category, subcategory, 
-      costPrice, images, variants 
+      costPrice, images, variants, isFeatured
     } = productData;
 
     // Find category ID
@@ -125,6 +125,7 @@ export async function saveProduct(productData: any) {
       categoryId: categoryRecord.id,
       images: images || [],
       isActive: productData.status === 'active',
+      isFeatured: !!isFeatured,
     };
 
     let savedProduct;

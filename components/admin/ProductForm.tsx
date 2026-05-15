@@ -23,6 +23,7 @@ const productSchema = z.object({
   metaDescription: z.string().optional(),
   keywords: z.string().optional(),
   status: z.enum(['active', 'draft', 'archived']),
+  isFeatured: z.boolean().optional().default(false),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -41,6 +42,7 @@ const ProductForm = ({ initialData }: { initialData?: any }) => {
     defaultValues: initialData || {
       status: 'draft',
       costPrice: 0,
+      isFeatured: false,
     }
   });
 
@@ -261,6 +263,17 @@ const ProductForm = ({ initialData }: { initialData?: any }) => {
                   <option value="draft">Draft</option>
                   <option value="archived">Archived</option>
                 </select>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-[#0F0F0F] border border-[#333] rounded-lg">
+                <span className="text-sm font-medium text-gray-300">Featured Product</span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    {...register('isFeatured')}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#E84118]"></div>
+                </label>
               </div>
             </div>
           </section>
