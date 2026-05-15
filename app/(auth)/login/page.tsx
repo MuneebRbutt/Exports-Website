@@ -6,7 +6,9 @@ import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Eye, EyeOff } from "lucide-react"
 
-export default function LoginPage() {
+import { Suspense } from "react"
+
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [showPassword, setShowPassword] = useState(false)
@@ -116,5 +118,13 @@ export default function LoginPage() {
         </Link>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="text-white text-center">Loading login form...</div>}>
+      <LoginForm />
+    </Suspense>
   )
 }

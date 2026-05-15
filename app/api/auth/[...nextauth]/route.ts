@@ -42,7 +42,7 @@ const handler = NextAuth({
     }, 
     async session({ session, token }) { 
       if (token) { 
-        session.user.role = token.role as string 
+        session.user.role = token.role as "CUSTOMER" | "ADMIN" | "EXPORT_BUYER" 
         session.user.id = token.id as string 
       } 
       return session 

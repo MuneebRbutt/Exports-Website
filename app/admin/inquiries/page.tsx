@@ -170,7 +170,7 @@ const InquiriesPage = () => {
         <DataTable 
           columns={columns} 
           data={inquiries}
-          loading={loading}
+          isLoading={loading}
           onEdit={(item) => alert(`Full Message:\n\n${item.message}`)}
         />
       </div>

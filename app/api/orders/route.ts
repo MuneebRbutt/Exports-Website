@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
 
     // Validate stock and calculate total
     let totalAmount = 0;
-    const itemsToProcess = [];
+    const itemsToProcess: any[] = [];
 
     for (const item of items) {
       console.log("Processing item:", item.name, "ID:", item.id, "VariantID:", item.variantId, "ProductID:", item.productId);

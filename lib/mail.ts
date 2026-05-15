@@ -76,3 +76,13 @@ ignore this email.
 
 Meharstare Team`;
 }
+
+// EMAIL 4 — When password is changed
+export function passwordChangedEmailTemplate(name: string) {
+  return `Hi ${name},
+
+Your password has been successfully changed.
+If you did not make this change, please contact support immediately.
+
+Meharstare Team`;
+}

@@ -29,6 +29,7 @@ export default function AdminOrderDetailPage({ params }: { params: { orderId: st
 
   useEffect(() => {
     fetchOrder();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.orderId]);
 
   const fetchOrder = async () => {

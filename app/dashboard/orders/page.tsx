@@ -89,7 +89,7 @@ export default async function OrdersPage() {
                       Total
                     </p>
                     <p className="text-sm font-bold text-gray-900">
-                      ${order.totalAmount.toFixed(2)} {order.currency}
+                      ${order.totalAmount.toFixed(2)}
                     </p>
                   </div>
                 </div>
