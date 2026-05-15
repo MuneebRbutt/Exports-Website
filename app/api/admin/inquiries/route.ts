@@ -1,29 +1,22 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db';
+import { requireAdmin } from '@/lib/auth/adminGuard';
 
 export async function GET() {
   try {
-    const inquiries = await prisma.contactMessage.findMany({
+    await requireAdmin();
+
+    const inquiries = await prisma.exportInquiry.findMany({
       orderBy: {
         createdAt: 'desc',
       },
     });
     return NextResponse.json(inquiries);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to fetch inquiries:", error);
+    if (error.message === "UNAUTHORIZED" || error.message === "FORBIDDEN") {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
     return NextResponse.json({ error: "Failed to fetch inquiries" }, { status: 500 });
-  }
-}
-
-export async function PATCH(req: Request) {
-  try {
-    const { id, status } = await req.json();
-    const updated = await prisma.contactMessage.update({
-      where: { id },
-      data: { status },
-    });
-    return NextResponse.json({ message: "Inquiry status updated", data: updated });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to update inquiry" }, { status: 500 });
   }
 }

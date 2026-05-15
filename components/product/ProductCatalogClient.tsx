@@ -14,12 +14,30 @@ import ProductCard from "@/components/product/ProductCard";
 import FilterSidebar from "@/components/product/FilterSidebar";
 import { useFilters } from "@/hooks/useFilters";
 import { useRouter, useSearchParams } from "next/navigation";
+import { categories } from "@/lib/data/categories";
 
 interface ProductCatalogClientProps {
   products: any[];
   totalCount: number;
   currentPage: number;
 }
+
+// Build a reverse lookup map: subcategory slug → parent slug
+// e.g. "soccer" → "sportswear", "boxing-gloves" → "gloves"
+const subToParentMap: Record<string, string> = {};
+categories.forEach((parent) => {
+  parent.subcategories.forEach((sub) => {
+    subToParentMap[sub.slug] = parent.slug;
+  });
+});
+
+// Safely extract a numeric price from Prisma Decimal or plain number/string
+const getPrice = (val: any): number => {
+  if (typeof val === "number") return val;
+  if (typeof val === "string") return parseFloat(val) || 0;
+  if (val && typeof val === "object" && val.d) return Number(val.d.join(""));
+  return 0;
+};
 
 export default function ProductCatalogClient({ products, totalCount, currentPage }: ProductCatalogClientProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -29,11 +47,55 @@ export default function ProductCatalogClient({ products, totalCount, currentPage
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set('page', newPage.toString());
+    params.set("page", newPage.toString());
     router.push(`/products?${params.toString()}`);
   };
 
   const totalPages = Math.ceil(totalCount / 24);
+
+  const filteredAndSortedProducts = [...products]
+    .filter((p) => {
+      // --- Category Filter ---
+      if (filters.categories.length > 0) {
+        // Product's direct category slug (e.g. "soccer", "boxing-gloves")
+        const catSlug: string =
+          typeof p.category === "object" ? (p.category?.slug ?? "") : (p.category ?? "");
+
+        // Its parent slug via lookup map (e.g. "soccer" → "sportswear")
+        const parentSlug: string = subToParentMap[catSlug] ?? "";
+
+        // Match if:
+        // 1. The product's own category slug is selected
+        // 2. OR the parent category slug is selected (selecting "Sportswear" shows all soccer, basketball, etc.)
+        const matchesCat =
+          filters.categories.includes(catSlug) ||
+          filters.categories.includes(parentSlug);
+
+        if (!matchesCat) return false;
+      }
+
+      // --- Size Filter ---
+      if (filters.sizes.length > 0) {
+        const hasSize = p.variants?.some((v: any) => filters.sizes.includes(v.size));
+        if (!hasSize) return false;
+      }
+
+      // --- Price Filter ---
+      const price = getPrice(p.basePrice) || getPrice(p.price) || getPrice(p.retailPrice);
+      if (price < filters.priceRange[0] || price > filters.priceRange[1]) return false;
+
+      return true;
+    })
+    .sort((a, b) => {
+      const priceA = getPrice(a.basePrice) || getPrice(a.price);
+      const priceB = getPrice(b.basePrice) || getPrice(b.price);
+
+      if (filters.sortBy === "low-high") return priceA - priceB;
+      if (filters.sortBy === "high-low") return priceB - priceA;
+      if (filters.sortBy === "newest")
+        return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      return 0; // 'featured' or 'best-selling'
+    });
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -57,20 +119,20 @@ export default function ProductCatalogClient({ products, totalCount, currentPage
               </button>
               <div className="flex items-center space-x-2 bg-neutral-100 p-1 rounded-lg">
                 <button 
-                  onClick={() => filters.setViewMode('GRID4')}
-                  className={`p-2 rounded-md ${filters.viewMode === 'GRID4' ? 'bg-white shadow-sm' : 'text-neutral-400'}`}
+                  onClick={() => filters.setViewMode("GRID4")}
+                  className={`p-2 rounded-md ${filters.viewMode === "GRID4" ? "bg-white shadow-sm" : "text-neutral-400"}`}
                 >
                   <Grid3X3 className="h-4 w-4" />
                 </button>
                 <button 
-                  onClick={() => filters.setViewMode('GRID2')}
-                  className={`p-2 rounded-md ${filters.viewMode === 'GRID2' ? 'bg-white shadow-sm' : 'text-neutral-400'}`}
+                  onClick={() => filters.setViewMode("GRID2")}
+                  className={`p-2 rounded-md ${filters.viewMode === "GRID2" ? "bg-white shadow-sm" : "text-neutral-400"}`}
                 >
                   <LayoutGrid className="h-4 w-4" />
                 </button>
                 <button 
-                  onClick={() => filters.setViewMode('LIST')}
-                  className={`p-2 rounded-md ${filters.viewMode === 'LIST' ? 'bg-white shadow-sm' : 'text-neutral-400'}`}
+                  onClick={() => filters.setViewMode("LIST")}
+                  className={`p-2 rounded-md ${filters.viewMode === "LIST" ? "bg-white shadow-sm" : "text-neutral-400"}`}
                 >
                   <List className="h-4 w-4" />
                 </button>
@@ -94,12 +156,12 @@ export default function ProductCatalogClient({ products, totalCount, currentPage
 
           {/* PRODUCT GRID */}
           <div className={`grid gap-6 ${
-            filters.viewMode === 'GRID4' ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3' :
-            filters.viewMode === 'GRID2' ? 'grid-cols-1 md:grid-cols-2' :
-            'grid-cols-1'
+            filters.viewMode === "GRID4" ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3" :
+            filters.viewMode === "GRID2" ? "grid-cols-1 md:grid-cols-2" :
+            "grid-cols-1"
           }`}>
             <AnimatePresence mode="popLayout">
-              {products.map((product, idx) => (
+              {filteredAndSortedProducts.map((product, idx) => (
                 <motion.div
                   key={product.id}
                   layout
@@ -112,10 +174,10 @@ export default function ProductCatalogClient({ products, totalCount, currentPage
                 </motion.div>
               ))}
             </AnimatePresence>
-            {products.length === 0 && (
-               <div className="col-span-full py-20 text-center">
-                  <p className="text-neutral-500 text-lg">No products found matching your search.</p>
-               </div>
+            {filteredAndSortedProducts.length === 0 && (
+              <div className="col-span-full py-20 text-center">
+                <p className="text-neutral-500 text-lg">No products found matching your filters.</p>
+              </div>
             )}
           </div>
 
@@ -138,7 +200,7 @@ export default function ProductCatalogClient({ products, totalCount, currentPage
                     key={i}
                     onClick={() => handlePageChange(i + 1)}
                     className={`w-10 h-10 rounded-lg text-sm font-bold border transition-colors ${
-                      currentPage === i + 1 ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' : 'hover:border-dark'
+                      currentPage === i + 1 ? "bg-primary border-primary text-white shadow-lg shadow-primary/20" : "hover:border-dark"
                     }`}
                   >
                     {i + 1}

@@ -56,11 +56,11 @@ export default function FilterSidebar({ isMobile = false, onClose = () => {} }: 
     const allChecked = subSlugs.every(s => filters.categories.includes(s));
     
     if (allChecked) {
-      // Uncheck all
-      filters.setCategories(filters.categories.filter(c => !subSlugs.includes(c)));
+      // Uncheck all subcategories AND the parent
+      filters.setCategories(filters.categories.filter(c => !subSlugs.includes(c) && c !== parentSlug));
     } else {
-      // Check all - add subSlugs that aren't already in categories
-      const toAdd = subSlugs.filter(s => !filters.categories.includes(s));
+      // Check all - add subSlugs and parentSlug that aren't already in categories
+      const toAdd = [...subSlugs, parentSlug].filter(s => !filters.categories.includes(s));
       filters.setCategories([...filters.categories, ...toAdd]);
     }
   };

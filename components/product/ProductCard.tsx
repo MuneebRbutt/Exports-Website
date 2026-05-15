@@ -19,6 +19,13 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
   const { addItem } = useCart();
   const productUrl = getProductUrl(product);
 
+  const getPrice = (val: any) => {
+    if (typeof val === 'number') return val;
+    if (typeof val === 'string') return parseFloat(val) || 0;
+    if (val && typeof val === 'object' && val.d) return Number(val.d.join(''));
+    return 0;
+  };
+
   return (
     <motion.div
       layout
@@ -56,7 +63,7 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
           <button 
             onClick={(e) => {
               e.preventDefault();
-              const price = Number(product.basePrice) || Number(product.price) || Number(product.retailPrice) || 0;
+              const price = getPrice(product.basePrice) || getPrice(product.price) || getPrice(product.retailPrice) || 0;
               const image = (product.images && product.images.length > 0) ? product.images[0] : (product.image || product.img || "/images/product-placeholder.jpg");
               
               // Try to find a default variant (L/Black) or just the first one
@@ -115,7 +122,7 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
         <div className="mt-auto pt-4 border-t border-neutral-50">
           <div className="flex items-baseline space-x-2">
             <span className="text-xl font-bold text-dark">
-              ${(Number(product.basePrice) || Number(product.price) || Number(product.retailPrice) || 0).toFixed(2)}
+              ${(getPrice(product.basePrice) || getPrice(product.price) || getPrice(product.retailPrice) || 0).toFixed(2)}
             </span>
             <span className="text-[10px] text-neutral-400 font-medium">Retail</span>
           </div>

@@ -28,7 +28,11 @@ export default function CategoryGrid({ categories }: { categories: any[] }) {
                   className="object-cover group-hover:scale-110 transition-transform duration-700"
                 />
               ) : (
-                <div className={`absolute inset-0 bg-neutral-${800 - i * 100} group-hover:scale-110 transition-transform duration-700`} />
+                <div 
+                  className={`absolute inset-0 group-hover:scale-110 transition-transform duration-700 ${
+                    ["bg-neutral-800", "bg-neutral-700", "bg-neutral-600", "bg-neutral-500", "bg-neutral-400"][i % 5]
+                  }`} 
+                />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-dark via-dark/40 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-300" />
               <div className="absolute inset-0 border-4 border-transparent group-hover:border-primary transition-all duration-300 rounded-xl" />

@@ -61,23 +61,31 @@ export default function SubcategoryPage({ params }: { params: { category: string
       );
     }
 
+    // Safely extract price
+    const getPrice = (val: any) => {
+      if (typeof val === 'number') return val;
+      if (typeof val === 'string') return parseFloat(val) || 0;
+      if (val && typeof val === 'object' && val.d) return Number(val.d.join(''));
+      return 0;
+    };
+
     // 2. Filter by price range
     currentFiltered = currentFiltered.filter((p: any) => {
-      const productPrice = p.price || p.basePrice || 0;
+      const productPrice = getPrice(p.basePrice) || getPrice(p.price);
       return productPrice >= filters.priceRange[0] && productPrice <= filters.priceRange[1];
     });
 
     // 3. Sort products
     if (filters.sortBy === 'low-high') {
-      currentFiltered.sort((a, b) => (a.price || a.basePrice) - (b.price || b.basePrice));
+      currentFiltered.sort((a, b) => getPrice(a.basePrice) - getPrice(b.basePrice));
     } else if (filters.sortBy === 'high-low') {
-      currentFiltered.sort((a, b) => (b.price || b.basePrice) - (a.price || a.basePrice));
+      currentFiltered.sort((a, b) => getPrice(b.basePrice) - getPrice(a.basePrice));
     } else if (filters.sortBy === 'newest') {
       currentFiltered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
 
     setFilteredProducts(currentFiltered);
-  }, [products, filters.categories, filters.priceRange, filters.sortBy]);
+  }, [products, filters.categories, filters.sizes, filters.priceRange, filters.sortBy]);
 
   const categoryTitle = subcategory?.name?.toUpperCase() || params.subcategory.replace(/-/g, ' ').toUpperCase();
   const parentTitle = category?.name || params.category.replace(/-/g, ' ');

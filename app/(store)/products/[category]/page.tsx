@@ -2,19 +2,22 @@ import { prisma } from "@/lib/prisma";
 import ProductCatalogClient from "@/components/product/ProductCatalogClient";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import { getCategoryBySlug, getSubcategoryUrl } from "@/lib/data/categories";
+import { getCategoryBySlug } from "@/lib/data/categories";
 
 export default async function CategoryPage({ params }: { params: { category: string } }) {
   const products = await prisma.product.findMany({
     where: {
       isActive: true,
       category: {
-        slug: params.category
+        OR: [
+          { slug: params.category },
+          { parent: { slug: params.category } }
+        ]
       }
     },
     include: { 
       variants: true, 
-      category: true 
+      category: { include: { parent: true } }
     },
     orderBy: { createdAt: 'desc' }
   });
@@ -47,26 +50,6 @@ export default async function CategoryPage({ params }: { params: { category: str
           </div>
         </div>
 
-        {/* Subcategory Filter Chips */}
-        <div className="container mx-auto px-4 mt-8">
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href={`/products/${params.category}`}
-              className="px-4 py-2 bg-white/10 hover:bg-primary text-white text-sm font-bold uppercase tracking-wider rounded-full transition-colors"
-            >
-              All
-            </Link>
-            {category?.subcategories.map((sub) => (
-              <Link
-                key={sub.id}
-                href={getSubcategoryUrl(params.category, sub.slug)}
-                className="px-4 py-2 bg-white/5 hover:bg-primary text-white/80 hover:text-white text-sm font-bold uppercase tracking-wider rounded-full transition-colors"
-              >
-                {sub.name}
-              </Link>
-            )) || null}
-          </div>
-        </div>
       </section>
 
       {products.length === 0 ? (

@@ -1,27 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { getServerSession } from "next-auth/next";
+import { requireAdmin } from "@/lib/auth/adminGuard";
 import { sendMail, orderShippedTemplate } from "@/lib/mail";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { orderId: string } }
 ) {
-  const session = await getServerSession();
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  // Verify admin
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email }
-  });
-
-  if (user?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
   try {
+    await requireAdmin();
+
     const order = await prisma.order.findUnique({
       where: { id: params.orderId },
       include: {
@@ -40,8 +28,11 @@ export async function GET(
     }
 
     return NextResponse.json(order);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Admin OrderDetail GET error:", error);
+    if (error.message === "UNAUTHORIZED" || error.message === "FORBIDDEN") {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
@@ -50,21 +41,8 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { orderId: string } }
 ) {
-  const session = await getServerSession();
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  // Verify admin
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email }
-  });
-
-  if (user?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
   try {
+    await requireAdmin();
     const body = await req.json();
     const { status, trackingNumber, courierName, estimatedDelivery } = body;
 
@@ -95,8 +73,11 @@ export async function PATCH(
     }
 
     return NextResponse.json(updatedOrder);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Admin OrderDetail PATCH error:", error);
+    if (error.message === "UNAUTHORIZED" || error.message === "FORBIDDEN") {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }

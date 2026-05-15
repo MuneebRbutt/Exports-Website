@@ -1,23 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { getServerSession } from "next-auth/next";
+import { requireAdmin } from "@/lib/auth/adminGuard";
 
 export async function GET() {
-  const session = await getServerSession();
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  // Verify admin
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email }
-  });
-
-  if (user?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
   try {
+    await requireAdmin();
+
     const orders = await prisma.order.findMany({
       orderBy: { createdAt: "desc" },
       include: {
@@ -27,8 +15,11 @@ export async function GET() {
     });
 
     return NextResponse.json(orders);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Admin Orders GET error:", error);
+    if (error.message === "UNAUTHORIZED" || error.message === "FORBIDDEN") {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }

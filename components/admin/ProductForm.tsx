@@ -34,6 +34,8 @@ const ProductForm = ({ initialData }: { initialData?: any }) => {
   const [view360, setView360] = useState<string[]>(initialData?.view360 || []);
   const [variants, setVariants] = useState<any[]>(initialData?.variants || []);
 
+  const [publishedProductUrl, setPublishedProductUrl] = useState<string | null>(null);
+
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: initialData || {
@@ -55,6 +57,7 @@ const ProductForm = ({ initialData }: { initialData?: any }) => {
         ? { ...data, id: initialData.id, images, view360, variants } 
         : { ...data, images, view360, variants };
 
+      // We use POST here because our backend handles both create and update via saveProduct
       const response = await fetch('/api/admin/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -63,8 +66,13 @@ const ProductForm = ({ initialData }: { initialData?: any }) => {
 
       if (!response.ok) throw new Error('Failed to publish product');
 
-      toast.success('Product published successfully!', { id: loadingToast });
-      router.push('/admin/products');
+      toast.success('Product published! ✅', { id: loadingToast });
+      
+      // Construct URL
+      const catSlug = data.category;
+      const prodSlug = data.slug;
+      setPublishedProductUrl(`/products/${catSlug}/${prodSlug}`);
+      
       router.refresh();
     } catch (error) {
       console.error(error);
@@ -94,13 +102,23 @@ const ProductForm = ({ initialData }: { initialData?: any }) => {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {publishedProductUrl && (
+            <a 
+              href={publishedProductUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 bg-[#E84118]/20 border border-[#E84118]/50 text-[#E84118] rounded-lg hover:bg-[#E84118]/30 transition-colors text-sm font-bold flex items-center gap-2"
+            >
+              <Globe size={18} />
+              View on Website
+            </a>
+          )}
           <button 
             type="button" 
-            disabled={isSubmitting}
+            onClick={() => router.push('/admin/products')}
             className="px-4 py-2 bg-[#1A1A1A] border border-[#333] text-white rounded-lg hover:bg-[#222] transition-colors text-sm font-medium flex items-center gap-2 disabled:opacity-50"
           >
-            <Save size={18} />
-            Save Draft
+            Go Back
           </button>
           <button 
             type="submit" 
