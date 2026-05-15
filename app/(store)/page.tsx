@@ -18,24 +18,32 @@ import HomeHero from "@/components/home/HomeHero";
 import CategoryGrid from "@/components/home/CategoryGrid";
 
 export default async function Home() {
-  // Fetch featured products
-  const featuredProducts = await prisma.product.findMany({
-    where: { 
-      isActive: true, 
-      isFeatured: true 
-    },
-    take: 6,
-    include: { category: true }
-  });
+  let featuredProducts = [];
+  let categoriesWithCount = [];
 
-  // Fetch categories with product count
-  const categoriesWithCount = await prisma.category.findMany({
-    where: { parentId: null },
-    include: {
-      _count: { select: { products: true } },
-      subcategories: true
-    }
-  });
+  try {
+    // Fetch featured products
+    featuredProducts = await prisma.product.findMany({
+      where: { 
+        isActive: true, 
+        isFeatured: true 
+      },
+      take: 6,
+      include: { category: true }
+    });
+
+    // Fetch categories with product count
+    categoriesWithCount = await prisma.category.findMany({
+      where: { parentId: null },
+      include: {
+        _count: { select: { products: true } },
+        subcategories: true
+      }
+    });
+  } catch (error) {
+    console.error("Database connection error:", error);
+    // Continue with empty arrays if database fails
+  }
 
   return (
     <div className="flex flex-col">
