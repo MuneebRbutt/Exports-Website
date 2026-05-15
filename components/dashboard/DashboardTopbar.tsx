@@ -51,7 +51,7 @@ export default function DashboardTopbar({ user }: Props) {
           </span>
         </div>
         <button
-          onClick={() => signOut({ callbackUrl: "/auth/login" })}
+          onClick={() => signOut({ callbackUrl: "/login" })}
           className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-600 transition-colors"
           title="Sign out"
         >

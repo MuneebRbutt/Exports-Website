@@ -42,7 +42,7 @@ export default function DashboardPage() {
               </Link>
             )}
             <button
-              onClick={() => signOut({ callbackUrl: "/auth/login" })}
+              onClick={() => signOut({ callbackUrl: "/login" })}
               className="flex items-center gap-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg transition-all"
             >
               <LogOut size={18} />

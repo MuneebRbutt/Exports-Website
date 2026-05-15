@@ -83,7 +83,7 @@ function ResetPasswordForm() {
       if (data.success) {
         setIsSuccess(true);
         toast.success("Password reset successful!");
-        setTimeout(() => router.push("/auth/login"), 3000);
+        setTimeout(() => router.push("/login"), 3000);
       } else {
         toast.error(data.message || "Failed to reset password");
       }
@@ -118,7 +118,7 @@ function ResetPasswordForm() {
                 Your password has been successfully updated. Redirecting to login...
               </p>
               <Link
-                href="/auth/login"
+                href="/login"
                 className="inline-block w-full bg-[#E84118] hover:bg-[#d13a15] text-white py-3.5 rounded-lg font-athletic font-bold uppercase tracking-widest transition-all"
               >
                 Go to Login
@@ -199,7 +199,7 @@ function ResetPasswordForm() {
               </form>
 
               <Link
-                href="/auth/login"
+                href="/login"
                 className="flex items-center justify-center gap-1 text-sm text-neutral-500 hover:text-white transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" /> Back to Login

@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     if (!user) {
       // Redirect to login with error
       return NextResponse.redirect(
-        new URL("/auth/login?verified=false", process.env.NEXTAUTH_URL || "http://localhost:3000")
+        new URL("/login?verified=false", process.env.NEXTAUTH_URL || "http://localhost:3000")
       );
     }
 
@@ -36,12 +36,12 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.redirect(
-      new URL("/auth/login?verified=true", process.env.NEXTAUTH_URL || "http://localhost:3000")
+      new URL("/login?verified=true", process.env.NEXTAUTH_URL || "http://localhost:3000")
     );
   } catch (error: any) {
     console.error("Email verification error:", error);
     return NextResponse.redirect(
-      new URL("/auth/login?verified=false", process.env.NEXTAUTH_URL || "http://localhost:3000")
+      new URL("/login?verified=false", process.env.NEXTAUTH_URL || "http://localhost:3000")
     );
   }
 }

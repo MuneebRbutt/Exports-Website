@@ -8,7 +8,7 @@ export default withAuth(
     
     if (isAdminRoute && token?.role !== "ADMIN") { 
       return NextResponse.redirect( 
-        new URL("/auth/login", req.url) 
+        new URL("/login", req.url) 
       ) 
     } 
     return NextResponse.next() 

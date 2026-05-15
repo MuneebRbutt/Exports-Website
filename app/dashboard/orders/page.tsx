@@ -15,7 +15,7 @@ const statusColors: Record<string, string> = {
 
 export default async function OrdersPage() {
   const session = await getServerSession(authOptions);
-  if (!session) redirect("/auth/login");
+  if (!session) redirect("/login");
 
   const userId = (session.user as any).id;
 

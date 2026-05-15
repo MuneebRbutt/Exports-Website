@@ -15,7 +15,7 @@ export default async function AdminLayout({
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.email) {
-    redirect('/auth/login?callbackUrl=/admin');
+    redirect('/login?callbackUrl=/admin');
   }
 
   // Verify role from DB

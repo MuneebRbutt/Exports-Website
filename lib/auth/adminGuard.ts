@@ -11,7 +11,7 @@ export async function protectAdmin() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/auth/login?callbackUrl=/admin");
+    redirect("/login?callbackUrl=/admin");
   }
 
   // @ts-ignore

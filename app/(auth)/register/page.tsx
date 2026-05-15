@@ -46,7 +46,7 @@ export default function RegisterPage() {
         throw new Error(data.error || "Something went wrong")
       }
 
-      router.push("/auth/login")
+      router.push("/login")
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -133,7 +133,7 @@ export default function RegisterPage() {
 
       <div className="mt-6 text-center text-gray-400 text-sm">
         Already have an account?{" "}
-        <Link href="/auth/login" className="text-[#E84118] hover:underline font-medium">
+        <Link href="/login" className="text-[#E84118] hover:underline font-medium">
           Sign In
         </Link>
       </div>

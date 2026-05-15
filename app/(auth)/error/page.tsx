@@ -21,7 +21,7 @@ export default function AuthErrorPage() {
             Something went wrong during authentication. Please try again.
           </p>
           <Link
-            href="/auth/login"
+            href="/login"
             className="inline-flex items-center justify-center gap-2 w-full bg-[#E84118] hover:bg-[#d13a15] text-white py-3.5 rounded-lg font-athletic font-bold uppercase tracking-widest transition-all"
           >
             <ArrowLeft className="h-4 w-4" /> Back to Login
