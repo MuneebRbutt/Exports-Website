@@ -1,25 +1,26 @@
 export const dynamic = 'force-dynamic';
 import Link from "next/link";
 import Image from "next/image";
-import { 
-  ArrowRight, 
-  Globe, 
-  ShieldCheck, 
-  Truck, 
-  Factory, 
-  ChevronRight, 
-  Package, 
-  CheckCircle2 
+
+import {
+  ArrowRight,
+  Globe,
+  ShieldCheck,
+  Truck,
+  Factory,
+  ChevronRight,
+  Package,
+  CheckCircle2
 } from "lucide-react";
 import { getCategoryUrl, getSubcategoryUrl } from "@/lib/utils/urls";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import type { Product, Category } from "@prisma/client";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import HomeHero from "@/components/home/HomeHero";
 import CategoryGrid from "@/components/home/CategoryGrid";
 
-type FeaturedProduct = Prisma.ProductGetPayload<{ include: { category: true } }>;
-type CategoryWithCount = Prisma.CategoryGetPayload<{ include: { _count: { select: { products: true } }; subcategories: true } }>;
+type FeaturedProduct = Product & { category: Category };
+type CategoryWithCount = Category & { _count: { products: number }; subcategories: Category[]; };;
 
 export default async function Home() {
   let featuredProducts: FeaturedProduct[] = [];
@@ -28,9 +29,9 @@ export default async function Home() {
   try {
     // Fetch featured products
     featuredProducts = await prisma.product.findMany({
-      where: { 
-        isActive: true, 
-        isFeatured: true 
+      where: {
+        isActive: true,
+        isFeatured: true
       },
       take: 6,
       include: { category: true }
@@ -84,7 +85,7 @@ export default async function Home() {
               <p className="text-neutral-400 mb-12 text-lg font-light leading-relaxed">
                 Combining decades of craftsmanship with modern athletic technology. We operate our own state-of-the-art facilities in Sialkot, ensuring uncompromised quality for every stitch.
               </p>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                 {[
                   { icon: Factory, title: "Direct Factory Pricing", desc: "No middlemen, maximum value for our customers." },
@@ -104,7 +105,7 @@ export default async function Home() {
                 ))}
               </div>
             </div>
-            
+
             <div className="relative aspect-square">
               <div className="absolute inset-0 border-2 border-primary/30 translate-x-6 translate-y-6 rounded-2xl" />
               <div className="absolute inset-0 bg-neutral-800 rounded-2xl overflow-hidden shadow-2xl">
@@ -124,11 +125,11 @@ export default async function Home() {
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-4xl md:text-5xl text-white font-athletic italic font-bold mb-6">JOIN THE MEHARSTARE CLUB</h2>
             <p className="text-neutral-400 mb-10 text-lg">Receive exclusive updates on new collections, limited drops, and community events.</p>
-            
+
             <form className="flex flex-col sm:flex-row gap-4">
-              <input 
-                type="email" 
-                placeholder="Enter your email" 
+              <input
+                type="email"
+                placeholder="Enter your email"
                 className="flex-grow bg-white/5 border border-white/10 text-white px-6 py-4 rounded-xl focus:outline-none focus:border-primary transition-colors"
                 required
               />
