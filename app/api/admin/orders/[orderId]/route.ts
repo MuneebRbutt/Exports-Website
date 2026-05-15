@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getServerSession } from "next-auth/next";
+import { sendMail, orderShippedTemplate } from "@/lib/mail";
 
 export async function GET(
   req: NextRequest,
@@ -74,8 +75,24 @@ export async function PATCH(
 
     const updatedOrder = await prisma.order.update({
       where: { id: params.orderId },
-      data: updateData
+      data: updateData,
+      include: { user: true }
     });
+
+    // Send shipping email if status is SHIPPED
+    if (status === "SHIPPED") {
+      try {
+        const emailText = orderShippedTemplate(
+          updatedOrder.user.name || "Customer",
+          updatedOrder.orderNumber,
+          updatedOrder.trackingNumber || "[Not Provided]",
+          updatedOrder.courierName || "Courier Service"
+        );
+        await sendMail(updatedOrder.user.email, `Your Order is On The Way! 🚚`, emailText);
+      } catch (emailError) {
+        console.error("Failed to send shipping email:", emailError);
+      }
+    }
 
     return NextResponse.json(updatedOrder);
   } catch (error) {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getServerSession } from "next-auth/next";
+import { sendMail, orderConfirmationTemplate } from "@/lib/mail";
 
 export async function GET() {
   const session = await getServerSession();
@@ -168,6 +169,18 @@ export async function POST(req: NextRequest) {
 
       return order;
     });
+
+    // Send order confirmation email
+    try {
+      const emailText = orderConfirmationTemplate(
+        user.name || "Customer",
+        result.orderNumber,
+        result.totalAmount.toFixed(2)
+      );
+      await sendMail(user.email, `Order Confirmed — ${result.orderNumber}`, emailText);
+    } catch (emailError) {
+      console.error("Failed to send order confirmation email:", emailError);
+    }
 
     return NextResponse.json({
       orderId: result.id,

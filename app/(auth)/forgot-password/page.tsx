@@ -42,7 +42,7 @@ export default function ForgotPasswordPage() {
           We've sent a password reset link to <span className="text-white font-medium">{email}</span>.
         </p>
         <Link 
-          href="/auth/login" 
+          href="/login" 
           className="inline-flex items-center text-[#E84118] hover:underline font-medium"
         >
           <ArrowLeft size={16} className="mr-2" />
@@ -89,7 +89,7 @@ export default function ForgotPasswordPage() {
 
       <div className="mt-8 text-center">
         <Link 
-          href="/auth/login" 
+          href="/login" 
           className="inline-flex items-center text-gray-400 hover:text-white text-sm transition-colors"
         >
           <ArrowLeft size={16} className="mr-2" />

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getProducts, saveProduct, deleteProduct } from '@/lib/db/products';
+import { revalidatePath } from 'next/cache';
 
 export async function GET(req: Request) {
   try {
@@ -24,6 +25,11 @@ export async function POST(req: Request) {
     if (!success) {
       throw new Error('Failed to save product to storage');
     }
+    
+    // Revalidate paths
+    revalidatePath('/products');
+    revalidatePath('/admin/products');
+    revalidatePath('/');
     
     return NextResponse.json({ 
       success: true,
@@ -50,6 +56,11 @@ export async function DELETE(req: Request) {
     if (!success) {
       throw new Error('Failed to delete product');
     }
+
+    // Revalidate paths
+    revalidatePath('/products');
+    revalidatePath('/admin/products');
+    revalidatePath('/');
 
     return NextResponse.json({ success: true, message: "Product deleted successfully" });
   } catch (error) {

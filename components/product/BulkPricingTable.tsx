@@ -3,10 +3,15 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Info } from "lucide-react";
 
-export default function BulkPricingTable() {
+interface Tier {
+  qty: string;
+  price: string;
+}
+
+export default function BulkPricingTable({ tiers }: { tiers?: Tier[] }) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const tiers = [
+  const displayTiers = tiers || [
     { qty: "50-99 units", price: "$24.99/unit" },
     { qty: "100-499 units", price: "$19.99/unit" },
     { qty: "500+ units", price: "$15.99/unit" },
@@ -36,7 +41,7 @@ export default function BulkPricingTable() {
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
-              {tiers.map((tier, i) => (
+              {displayTiers.map((tier, i) => (
                 <tr key={i} className="hover:bg-white/50 transition-colors">
                   <td className="py-3 text-neutral-600 font-medium">{tier.qty}</td>
                   <td className="py-3 text-right font-bold text-dark">{tier.price}</td>

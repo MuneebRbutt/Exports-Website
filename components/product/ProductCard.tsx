@@ -33,7 +33,7 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
       <div className={`relative bg-neutral-100 overflow-hidden ${isList ? 'w-1/3' : 'w-full aspect-[4/5]'}`}>
         <Link href={productUrl} className="absolute inset-0 z-0">
           <Image
-            src={product.image || product.img || "/images/product-placeholder.jpg"}
+            src={(product.images && product.images.length > 0) ? product.images[0] : (product.image || product.img || "/images/product-placeholder.jpg")}
             alt={product.name}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -44,7 +44,7 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
         {/* Badges */}
         <div className="absolute top-3 left-3 z-10 flex flex-col gap-2 pointer-events-none">
           <span className="bg-primary text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">
-            {product.category}
+            {typeof product.category === 'object' ? product.category?.name : product.category}
           </span>
         </div>
 
@@ -56,7 +56,8 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
           <button 
             onClick={(e) => {
               e.preventDefault();
-              const price = Number(product.price) || Number(product.retailPrice) || 0;
+              const price = Number(product.basePrice) || Number(product.price) || Number(product.retailPrice) || 0;
+              const image = (product.images && product.images.length > 0) ? product.images[0] : (product.image || product.img || "/images/product-placeholder.jpg");
               
               // Try to find a default variant (L/Black) or just the first one
               const defaultVariant = product.variants?.find((v: any) => v.size === "L" && v.color === "Black") || product.variants?.[0];
@@ -67,7 +68,7 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
                 productId: product.id,
                 name: product.name,
                 price: price,
-                image: product.image || product.img || "/images/product-placeholder.jpg",
+                image: image,
                 size: defaultVariant ? defaultVariant.size : "L",
                 color: defaultVariant ? defaultVariant.color : "Black",
                 quantity: 1
@@ -114,7 +115,7 @@ export default function ProductCard({ product, viewMode = 'GRID4' }: ProductCard
         <div className="mt-auto pt-4 border-t border-neutral-50">
           <div className="flex items-baseline space-x-2">
             <span className="text-xl font-bold text-dark">
-              ${(Number(product.price) || Number(product.retailPrice) || 0).toFixed(2)}
+              ${(Number(product.basePrice) || Number(product.price) || Number(product.retailPrice) || 0).toFixed(2)}
             </span>
             <span className="text-[10px] text-neutral-400 font-medium">Retail</span>
           </div>

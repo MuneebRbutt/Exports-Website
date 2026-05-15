@@ -22,6 +22,7 @@ import { getCategoryUrl } from "@/lib/utils/urls";
 export default function SubcategoryPage({ params }: { params: { category: string; subcategory: string } }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const filters = useFilters();
 
@@ -48,18 +49,35 @@ export default function SubcategoryPage({ params }: { params: { category: string
     fetchProducts();
   }, [params.category, params.subcategory]);
 
-  // Effect to apply price range filter
+  // Effect to apply filters and sorting
   useEffect(() => {
     let currentFiltered = [...products];
 
-    // 1. Filter by price range
+    // 1. Filter by sidebar checkboxes (if any are selected outside of the current subcategory)
+    if (filters.categories.length > 0) {
+      currentFiltered = currentFiltered.filter((p: any) => 
+        filters.categories.includes(p.category) || 
+        (p.subcategory && filters.categories.includes(p.subcategory))
+      );
+    }
+
+    // 2. Filter by price range
     currentFiltered = currentFiltered.filter((p: any) => {
-      const productPrice = p.basePrice || p.price; // Assuming basePrice or price exists
+      const productPrice = p.price || p.basePrice || 0;
       return productPrice >= filters.priceRange[0] && productPrice <= filters.priceRange[1];
     });
 
+    // 3. Sort products
+    if (filters.sortBy === 'low-high') {
+      currentFiltered.sort((a, b) => (a.price || a.basePrice) - (b.price || b.basePrice));
+    } else if (filters.sortBy === 'high-low') {
+      currentFiltered.sort((a, b) => (b.price || b.basePrice) - (a.price || a.basePrice));
+    } else if (filters.sortBy === 'newest') {
+      currentFiltered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+
     setFilteredProducts(currentFiltered);
-  }, [products, filters.priceRange]);
+  }, [products, filters.categories, filters.priceRange, filters.sortBy]);
 
   const categoryTitle = subcategory?.name?.toUpperCase() || params.subcategory.replace(/-/g, ' ').toUpperCase();
   const parentTitle = category?.name || params.category.replace(/-/g, ' ');
@@ -99,7 +117,7 @@ export default function SubcategoryPage({ params }: { params: { category: string
               </Link>
             </div>
             <div className="text-neutral-400 font-medium">
-              <span className="text-white text-2xl font-athletic">{products.length}</span> Products Found
+              <span className="text-white text-2xl font-athletic">{filteredProducts.length}</span> Products Found
             </div>
           </div>
         </div>
@@ -184,7 +202,7 @@ export default function SubcategoryPage({ params }: { params: { category: string
               'grid-cols-1'
             }`}>
               <AnimatePresence mode="popLayout">
-                {products.map((product, idx) => (
+                {filteredProducts.map((product, idx) => (
                   <motion.div
                     key={product.id}
                     layout
@@ -199,9 +217,9 @@ export default function SubcategoryPage({ params }: { params: { category: string
               </AnimatePresence>
             </div>
 
-            {products.length === 0 && !isLoading && (
+            {filteredProducts.length === 0 && !isLoading && (
               <div className="text-center py-20">
-                <p className="text-neutral-400 text-lg">No products found in this subcategory.</p>
+                <p className="text-neutral-400 text-lg">No products found matching your filters.</p>
                 <Link href={getCategoryUrl(params.category)} className="text-primary font-bold mt-4 inline-block hover:underline">
                   View all {parentTitle}
                 </Link>
@@ -210,7 +228,7 @@ export default function SubcategoryPage({ params }: { params: { category: string
 
             {/* Pagination */}
             <div className="mt-16 flex flex-col md:flex-row items-center justify-between gap-6 border-t pt-8">
-              <p className="text-sm text-neutral-500">Showing {products.length} products</p>
+              <p className="text-sm text-neutral-500">Showing {filteredProducts.length} products</p>
             </div>
           </div>
         </div>

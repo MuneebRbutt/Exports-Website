@@ -1,30 +1,16 @@
 /**
  * Always generates correct product URL
  * Supports: /products/[category]/[slug]
- * Or: /products/[category]/[subcategory]/[slug]
  */
 export function getProductUrl(product: {
   slug: string;
-  category: string | { slug: string };
-  subcategory?: string | { slug: string } | null;
+  category: { slug: string } | string;
 }): string {
   const categorySlug =
     typeof product.category === 'string'
       ? product.category
-          .toLowerCase()
-          .replace(/\s+/g, '-')
       : product.category.slug;
-
-  const subcategorySlug = product.subcategory
-    ? typeof product.subcategory === 'string'
-      ? product.subcategory.toLowerCase().replace(/\s+/g, '-')
-      : product.subcategory.slug
-    : null;
-
-  if (subcategorySlug) {
-    return `/products/${categorySlug}/${subcategorySlug}/${product.slug}`;
-  }
-
+      
   return `/products/${categorySlug}/${product.slug}`;
 }
 
@@ -57,5 +43,5 @@ export function getSubcategoryUrl(
       ? subcategory.toLowerCase().replace(/\s+/g, '-')
       : subcategory.slug;
 
-  return `/products/${categorySlug}/${subcategorySlug}`;
+  return `/products/${categorySlug}/sub/${subcategorySlug}`;
 }

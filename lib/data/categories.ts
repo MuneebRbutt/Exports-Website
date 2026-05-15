@@ -18,7 +18,7 @@ export const categories: Category[] = [
     id: "1",
     name: "Sportswear",
     slug: "sportswear",
-    image: "/images/categories/sportswear.jpg",
+    image: "/images/categories/sportswear.png",
     subcategories: [
       { id: "1-1", name: "Soccer", slug: "soccer", parentSlug: "sportswear" },
       { id: "1-2", name: "American Football", slug: "american-football", parentSlug: "sportswear" },
@@ -31,7 +31,7 @@ export const categories: Category[] = [
     id: "2",
     name: "Casual Wear",
     slug: "casual-wear",
-    image: "/images/categories/casual-wear.jpg",
+    image: "/images/categories/casual-wear.png",
     subcategories: [
       { id: "2-1", name: "Hoodies", slug: "hoodies", parentSlug: "casual-wear" },
       { id: "2-2", name: "T-Shirts", slug: "t-shirts", parentSlug: "casual-wear" },
@@ -45,7 +45,7 @@ export const categories: Category[] = [
     id: "3",
     name: "Gloves",
     slug: "gloves",
-    image: "/images/categories/gloves.jpg",
+    image: "/images/categories/gloves.png",
     subcategories: [
       { id: "3-1", name: "Soccer Gloves", slug: "soccer-gloves", parentSlug: "gloves" },
       { id: "3-2", name: "Boxing Gloves", slug: "boxing-gloves", parentSlug: "gloves" },
@@ -56,7 +56,7 @@ export const categories: Category[] = [
     id: "4",
     name: "Accessories",
     slug: "accessories",
-    image: "/images/categories/accessories.jpg",
+    image: "/images/categories/accessories.png",
     subcategories: [
       { id: "4-1", name: "Caps & Hats", slug: "caps-hats", parentSlug: "accessories" },
       { id: "4-2", name: "Socks", slug: "socks", parentSlug: "accessories" },

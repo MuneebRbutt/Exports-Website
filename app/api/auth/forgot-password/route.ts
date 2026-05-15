@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
-import { sendMail, passwordResetEmailTemplate } from "@/lib/mail";
+import { sendMail, forgotPasswordTemplate } from "@/lib/mail";
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,8 +38,8 @@ export async function POST(request: NextRequest) {
     });
 
     const resetUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/auth/reset-password?token=${resetToken}`;
-    const emailHtml = passwordResetEmailTemplate(user.name || "there", resetUrl);
-    await sendMail(user.email, "Reset your Meharstare password", emailHtml);
+    const emailText = forgotPasswordTemplate(resetUrl);
+    await sendMail(user.email, "Reset Your Password — Meharstare", emailText);
 
     return NextResponse.json(
       { success: true, message: "If an account exists, a reset link has been sent." },
