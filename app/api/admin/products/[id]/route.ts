@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { deleteProduct, saveProduct } from '@/lib/db/products';
 import { revalidatePath } from 'next/cache';
