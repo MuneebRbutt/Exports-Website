@@ -71,10 +71,13 @@ async function main() {
   for (const cat of categoriesData) {
     const createdCat = await prisma.category.upsert({
       where: { slug: cat.slug },
-      update: {},
+      update: {
+        image: `/images/categories/${cat.slug}.png`
+      },
       create: {
         name: cat.name,
         slug: cat.slug,
+        image: `/images/categories/${cat.slug}.png`
       },
     })
     categoryMap[cat.slug] = createdCat.id
@@ -272,9 +275,19 @@ async function main() {
       .join("")
       .toUpperCase()
 
+    let productImages = [`https://placehold.co/800x800/1a1a1a/e84118?text=${prod.imageText}`];
+    
+    if (prod.slug === 'professional-soccer-jersey') productImages = ['/images/products/jersey-front.jpg', '/images/products/jersey-back.jpg'];
+    if (prod.slug === 'premium-pullover-hoodie') productImages = ['/images/products/hoodie.jpg'];
+    if (prod.slug === 'fleece-tracksuit-set') productImages = ['/images/products/tracksuit.jpg'];
+    if (prod.slug === 'sports-gym-bag') productImages = ['/images/products/duffle-bag.jpg'];
+    if (prod.slug === 'professional-boxing-gloves') productImages = ['/images/products/gloves-red.jpg'];
+
     const createdProduct = await prisma.product.upsert({
       where: { slug: prod.slug },
-      update: {},
+      update: {
+        images: productImages
+      },
       create: {
         name: prod.name,
         slug: prod.slug,
@@ -284,7 +297,7 @@ async function main() {
         categoryId: categoryMap[prod.categorySlug],
         isFeatured: prod.isFeatured,
         isActive: true,
-        images: [`https://placehold.co/800x800/1a1a1a/e84118?text=${prod.imageText}`],
+        images: productImages,
       },
     })
 
