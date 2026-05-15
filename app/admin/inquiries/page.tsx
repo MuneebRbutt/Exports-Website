@@ -1,4 +1,5 @@
 'use client';
+export const dynamic = 'force-dynamic';
 
 import React, { useState, useEffect } from 'react';
 import { Mail, MoreVertical, Globe, CheckCircle, Clock, Send, Phone, User as UserIcon } from 'lucide-react';

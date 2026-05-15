@@ -1,6 +1,5 @@
-import type { Config } from "tailwindcss";
-
-const config: Config = {
+/** @type {import('tailwindcss').Config} */
+const config = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -17,6 +16,8 @@ const config: Config = {
         foreground: "var(--foreground)",
       },
       fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        heading: ['Barlow Condensed', 'Impact', 'sans-serif'],
         body: ["Inter", "sans-serif"],
         athletic: ["Barlow Condensed", "sans-serif"],
       },
@@ -29,4 +30,5 @@ const config: Config = {
   },
   plugins: [],
 };
-export default config;
+
+module.exports = config;

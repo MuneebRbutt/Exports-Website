@@ -49,4 +49,4 @@ const nextConfig = {
 // })
 // export default withBundleAnalyzer(nextConfig);
 
-export default nextConfig;
+module.exports = nextConfig;
