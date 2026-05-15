@@ -13,13 +13,17 @@ import {
 } from "lucide-react";
 import { getCategoryUrl, getSubcategoryUrl } from "@/lib/utils/urls";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import HomeHero from "@/components/home/HomeHero";
 import CategoryGrid from "@/components/home/CategoryGrid";
 
+type FeaturedProduct = Prisma.ProductGetPayload<{ include: { category: true } }>;
+type CategoryWithCount = Prisma.CategoryGetPayload<{ include: { _count: { select: { products: true } }; subcategories: true } }>;
+
 export default async function Home() {
-  let featuredProducts = [];
-  let categoriesWithCount = [];
+  let featuredProducts: FeaturedProduct[] = [];
+  let categoriesWithCount: CategoryWithCount[] = [];
 
   try {
     // Fetch featured products
